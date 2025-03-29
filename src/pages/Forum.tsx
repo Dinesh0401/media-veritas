@@ -32,7 +32,8 @@ import {
   AlertTriangle,
   ThumbsUp,
   BarChart2,
-  Shield
+  Shield,
+  CheckCircle
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,8 +12,10 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { CustomProgress } from "@/components/ui/custom-progress";
 import { useToast } from "@/components/ui/use-toast";
 import { Upload, Info, CheckCircle2, AlertCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Report() {
   const [step, setStep] = useState(1);
@@ -297,7 +298,7 @@ export default function Report() {
                       <span className="text-sm font-medium">Manipulation confidence</span>
                       <span className="text-sm font-medium">{confidenceScore}%</span>
                     </div>
-                    <Progress 
+                    <CustomProgress 
                       value={confidenceScore || 0} 
                       className="h-2 mb-2"
                       indicatorClassName={
