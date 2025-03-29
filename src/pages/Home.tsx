@@ -1,0 +1,164 @@
+
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { Search, Shield, Award, Lock, BarChart3, MessageSquare } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+
+export default function Home() {
+  return (
+    <div className="flex flex-col min-h-screen">
+      {/* Hero Section */}
+      <section className="relative py-20 px-4 md:py-32 overflow-hidden bg-gradient-to-br from-background to-accent">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div className="flex flex-col space-y-6">
+              <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+                Combat <span className="text-fakenik-blue">Deepfake Media</span> With Trustworthy Analysis
+              </h1>
+              <p className="text-xl text-muted-foreground">
+                FakeniX helps detect, report, and track manipulated content to create a safer online environment.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <Link to="/report">
+                  <Button size="lg" className="w-full sm:w-auto">
+                    Report Deepfake
+                  </Button>
+                </Link>
+                <Link to="/about">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                    Learn More
+                  </Button>
+                </Link>
+              </div>
+            </div>
+            <div className="hidden md:block relative h-96">
+              <div className="absolute inset-0 bg-gradient-to-br from-fakenik-blue/20 to-fakenik-teal/20 rounded-xl"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Shield className="h-24 w-24 text-fakenik-blue" />
+              </div>
+              <div className="absolute top-1/4 right-1/4 h-32 w-32 bg-fakenik-teal/10 rounded-full"></div>
+              <div className="absolute bottom-1/4 left-1/4 h-40 w-40 bg-fakenik-blue/10 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+        <div className="absolute left-0 right-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent"></div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 px-4 bg-background">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">How FakeniX Works</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Our platform uses advanced technology to detect manipulated media and provides tools for reporting and tracking deepfakes.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card className="bg-card border-border hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-center h-12 w-12 rounded-md bg-fakenik-blue/10 text-fakenik-blue mb-5">
+                  <Search className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Detect</h3>
+                <p className="text-muted-foreground">
+                  Upload suspicious media and let our AI analyze it for signs of manipulation with state-of-the-art detection.
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border-border hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-center h-12 w-12 rounded-md bg-fakenik-teal/10 text-fakenik-teal mb-5">
+                  <Shield className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Report</h3>
+                <p className="text-muted-foreground">
+                  Submit formal complaints for suspected deepfakes and help create accountability for manipulated content.
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border-border hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-center h-12 w-12 rounded-md bg-fakenik-blue/10 text-fakenik-blue mb-5">
+                  <BarChart3 className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Track</h3>
+                <p className="text-muted-foreground">
+                  Monitor the status of your submissions with real-time updates on the review and resolution process.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Community Section */}
+      <section className="py-16 px-4 bg-muted/50">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Join Our Community</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Connect with others concerned about digital manipulation and stay informed about the latest deepfake threats.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Card className="bg-card border-border hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-center h-12 w-12 rounded-md bg-fakenik-teal/10 text-fakenik-teal mb-5">
+                  <MessageSquare className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Discussion Forum</h3>
+                <p className="text-muted-foreground mb-4">
+                  Engage in moderated discussions about deepfake incidents, share knowledge, and learn from experts in the field.
+                </p>
+                <Link to="/forum">
+                  <Button variant="outline" className="w-full">Visit Forum</Button>
+                </Link>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border-border hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-center h-12 w-12 rounded-md bg-fakenik-blue/10 text-fakenik-blue mb-5">
+                  <Award className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Educational Resources</h3>
+                <p className="text-muted-foreground mb-4">
+                  Access guides, research, and tools to help you understand and identify manipulated media in your daily life.
+                </p>
+                <Link to="/resources">
+                  <Button variant="outline" className="w-full">Explore Resources</Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 px-4 bg-gradient-to-br from-fakenik-blue/10 to-fakenik-teal/10">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-4">Ready to Take Action?</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
+            Join thousands of users who are already helping to combat deepfakes and create a more trustworthy online environment.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link to="/register">
+              <Button size="lg" className="w-full sm:w-auto">
+                Create Free Account
+              </Button>
+            </Link>
+            <Link to="/report">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                Report Anonymously
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
