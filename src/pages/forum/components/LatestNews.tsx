@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,6 +14,7 @@ import {
   RefreshCw 
 } from "lucide-react";
 import { NewsItemProps } from "../types";
+import { toast } from "@/components/ui/use-toast";
 
 interface LatestNewsProps {
   newsTab: string;
@@ -21,6 +23,24 @@ interface LatestNewsProps {
 }
 
 export default function LatestNews({ newsTab, setNewsTab, filteredNews }: LatestNewsProps) {
+  const [likedNews, setLikedNews] = useState<number[]>([]);
+
+  const handleLike = (newsId: number) => {
+    if (likedNews.includes(newsId)) {
+      setLikedNews(likedNews.filter(id => id !== newsId));
+      toast({
+        title: "Removed like",
+        description: "You've unliked this news item",
+      });
+    } else {
+      setLikedNews([...likedNews, newsId]);
+      toast({
+        title: "Added like",
+        description: "You've liked this news item",
+      });
+    }
+  };
+
   return (
     <>
       <Card className="mb-6">
@@ -78,9 +98,12 @@ export default function LatestNews({ newsTab, setNewsTab, filteredNews }: Latest
                       <Repeat className="h-3.5 w-3.5" />
                       <span>{news.shares}</span>
                     </button>
-                    <button className="flex items-center gap-1 text-xs hover:text-red-500 transition-colors">
-                      <Heart className="h-3.5 w-3.5" />
-                      <span>{news.likes}</span>
+                    <button 
+                      className={`flex items-center gap-1 text-xs hover:text-red-500 transition-colors ${likedNews.includes(news.id) ? 'text-red-500' : ''}`}
+                      onClick={() => handleLike(news.id)}
+                    >
+                      <Heart className={`h-3.5 w-3.5 ${likedNews.includes(news.id) ? 'fill-red-500' : ''}`} />
+                      <span>{likedNews.includes(news.id) ? news.likes + 1 : news.likes}</span>
                     </button>
                     <button className="flex items-center gap-1 text-xs hover:text-primary transition-colors">
                       <Bookmark className="h-3.5 w-3.5" />

@@ -26,4 +26,5 @@ export interface NewsItemProps {
   hasImage?: boolean;
   imageUrl?: string;
   category: string;
+  metadata?: Record<string, unknown>;
 }
