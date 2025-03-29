@@ -10,7 +10,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Report from "./pages/Report";
 import Track from "./pages/Track";
-import Forum from "./pages/Forum";
+import Forum from "./pages/forum"; // Updated import path
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
