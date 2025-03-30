@@ -13,7 +13,7 @@ export interface DiscussionProps {
 }
 
 export interface NewsItemProps {
-  id: number;
+  id: string;
   author: string;
   handle: string;
   authorAvatar: string;

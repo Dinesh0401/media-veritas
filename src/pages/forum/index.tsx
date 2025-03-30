@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -101,7 +100,7 @@ export default function Forum() {
     setActiveTab("latest");
   };
 
-  const handleLikeNews = async (newsId: number) => {
+  const handleLikeNews = async (newsId: string) => {
     if (!user) {
       toast({
         title: "Authentication required",
