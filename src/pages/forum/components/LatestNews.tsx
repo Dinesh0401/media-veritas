@@ -1,10 +1,11 @@
 
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Heart, MessageCircle, Share2, CheckCircle } from "lucide-react";
+import { Search, Heart, MessageCircle, Share2, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { NewsItemProps } from "../types";
 
 interface LatestNewsProps {
@@ -15,6 +16,54 @@ interface LatestNewsProps {
 }
 
 export default function LatestNews({ newsTab, setNewsTab, filteredNews, onLike }: LatestNewsProps) {
+  const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
+  const [autoScroll, setAutoScroll] = useState(true);
+  const autoScrollTimerRef = useRef<number | null>(null);
+
+  // Auto-scroll news items
+  useEffect(() => {
+    if (autoScroll && filteredNews.length > 1) {
+      const timer = window.setInterval(() => {
+        setCurrentNewsIndex((prevIndex) => 
+          prevIndex === filteredNews.length - 1 ? 0 : prevIndex + 1
+        );
+      }, 5000); // Change news every 5 seconds
+      
+      autoScrollTimerRef.current = timer;
+      
+      return () => {
+        if (autoScrollTimerRef.current) {
+          clearInterval(autoScrollTimerRef.current);
+        }
+      };
+    }
+  }, [autoScroll, filteredNews.length]);
+
+  // Pause auto-scroll when user interacts with news
+  const pauseAutoScroll = () => {
+    setAutoScroll(false);
+    // Resume after 30 seconds of inactivity
+    setTimeout(() => setAutoScroll(true), 30000);
+  };
+
+  const handlePrevNews = () => {
+    pauseAutoScroll();
+    setCurrentNewsIndex((prevIndex) => 
+      prevIndex === 0 ? filteredNews.length - 1 : prevIndex - 1
+    );
+  };
+
+  const handleNextNews = () => {
+    pauseAutoScroll();
+    setCurrentNewsIndex((prevIndex) => 
+      prevIndex === filteredNews.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const displayedNews = filteredNews.length > 0 
+    ? [filteredNews[currentNewsIndex]] 
+    : [];
+
   return (
     <div>
       <Tabs value={newsTab} onValueChange={setNewsTab} className="mb-6">
@@ -27,8 +76,8 @@ export default function LatestNews({ newsTab, setNewsTab, filteredNews, onLike }
       </Tabs>
 
       {filteredNews.length > 0 ? (
-        <div className="space-y-4">
-          {filteredNews.map((news) => (
+        <div className="space-y-4 relative">
+          {displayedNews.map((news) => (
             <Card key={news.id} className="overflow-hidden">
               <CardContent className="p-0">
                 <div className="p-4">
@@ -57,7 +106,7 @@ export default function LatestNews({ newsTab, setNewsTab, filteredNews, onLike }
                   
                   <p className="mb-4">{news.content}</p>
                   
-                  {news.hasImage && news.imageUrl && (
+                  {news.hasImage && news.imageUrl ? (
                     <div className="mb-4 rounded-md overflow-hidden">
                       <img 
                         src={news.imageUrl} 
@@ -65,13 +114,20 @@ export default function LatestNews({ newsTab, setNewsTab, filteredNews, onLike }
                         className="w-full object-cover" 
                       />
                     </div>
+                  ) : (
+                    <div className="mb-4 bg-muted/30 rounded-md p-2 text-center text-sm text-muted-foreground">
+                      AI is generating an image for this news...
+                    </div>
                   )}
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-6">
                       <button 
                         className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
-                        onClick={() => onLike(news.id)}
+                        onClick={() => {
+                          pauseAutoScroll();
+                          onLike(news.id);
+                        }}
                       >
                         <Heart className="h-4 w-4" />
                         <span>{news.likes}</span>
@@ -90,6 +146,41 @@ export default function LatestNews({ newsTab, setNewsTab, filteredNews, onLike }
               </CardContent>
             </Card>
           ))}
+          
+          {filteredNews.length > 1 && (
+            <div className="flex justify-between items-center mt-4">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 -ml-4 bg-background/80"
+                onClick={handlePrevNews}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              <div className="flex items-center justify-center w-full gap-1 mt-2">
+                {filteredNews.map((_, index) => (
+                  <div 
+                    key={index}
+                    className={`h-1.5 rounded-full ${
+                      index === currentNewsIndex 
+                        ? "w-4 bg-fakenik-blue" 
+                        : "w-1.5 bg-muted"
+                    }`}
+                  />
+                ))}
+              </div>
+              
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 -mr-4 bg-background/80"
+                onClick={handleNextNews}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
         <Card>

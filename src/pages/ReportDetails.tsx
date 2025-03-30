@@ -29,12 +29,14 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { CustomProgress } from "@/components/ui/custom-progress";
+import ReportStats from "@/components/ReportStats";
 
 export default function ReportDetails() {
   const { id } = useParams<{ id: string }>();
   const [report, setReport] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [showStats, setShowStats] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -299,6 +301,14 @@ export default function ReportDetails() {
                   <Share2 className="mr-2 h-4 w-4" />
                   Share Report
                 </Button>
+                <Button 
+                  variant="secondary" 
+                  className="w-full"
+                  onClick={() => setShowStats(!showStats)}
+                >
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  {showStats ? "Hide Statistics" : "View Statistics"}
+                </Button>
               </CardContent>
             </Card>
 
@@ -353,6 +363,22 @@ export default function ReportDetails() {
             </Card>
           </div>
         </div>
+
+        {showStats && (
+          <div className="mt-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Deepfake Impact Analytics</CardTitle>
+                <CardDescription>
+                  Statistical analysis of deepfake reports and their impact
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ReportStats />
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );

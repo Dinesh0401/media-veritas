@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,6 +8,7 @@ import { getCategoryColor } from "./utils/helpers";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { generateNewsImageWithAI } from "@/utils/generateNewsImage";
 
 // Components
 import ForumCategories from "./components/ForumCategories";
@@ -38,23 +40,34 @@ export default function Forum() {
           throw error;
         }
 
-        const formattedNews: NewsItemProps[] = (data || []).map((item: any) => ({
-          id: item.id,
-          author: item.author,
-          handle: item.author_handle,
-          authorAvatar: item.author_avatar,
-          content: item.content,
-          timePosted: new Date(item.created_at).toLocaleString(),
-          likes: item.likes,
-          comments: item.comments,
-          shares: item.shares,
-          verified: item.verified,
-          hasImage: !!item.image_url,
-          imageUrl: item.image_url,
-          category: item.category,
-          metadata: item
-        }));
-
+        const mappedNewsPromises = (data || []).map(async (item: any) => {
+          const hasImage = !!item.image_url;
+          let imageUrl = item.image_url;
+          
+          // Generate an image for news without images
+          if (!hasImage) {
+            imageUrl = await generateNewsImageWithAI(item.content, item.category);
+          }
+          
+          return {
+            id: item.id,
+            author: item.author,
+            handle: item.author_handle,
+            authorAvatar: item.author_avatar,
+            content: item.content,
+            timePosted: new Date(item.created_at).toLocaleString(),
+            likes: item.likes,
+            comments: item.comments,
+            shares: item.shares,
+            verified: item.verified,
+            hasImage: true, // We now provide an image for all news items
+            imageUrl: imageUrl,
+            category: item.category,
+            metadata: item
+          };
+        });
+        
+        const formattedNews = await Promise.all(mappedNewsPromises);
         setNewsItems(formattedNews);
       } catch (error: any) {
         console.error('Error fetching news:', error);
