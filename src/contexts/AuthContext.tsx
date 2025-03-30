@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .from('users')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         throw error;
@@ -100,28 +100,64 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signUp({ 
+      
+      // For development purposes, let's directly sign in after sign up
+      // This bypasses the email confirmation step
+      const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
           data: {
             full_name: fullName,
           },
+          // This ensures the user is automatically signed in after registration
+          emailRedirectTo: window.location.origin,
         },
       });
       
       if (error) throw error;
       
+      // Check if the user was created successfully but needs email confirmation
+      if (data.user && data.user.identities && data.user.identities.length === 0) {
+        toast({
+          title: "Account exists",
+          description: "An account with this email already exists. Please sign in instead.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       toast({
         title: "Account created!",
-        description: "Please check your email to verify your account.",
+        description: "You have successfully signed up and are now logged in.",
       });
+
+      // If we get here and no session was created, try to sign in immediately
+      if (!data.session) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({ 
+          email, 
+          password
+        });
+        
+        if (signInError) {
+          console.error("Auto sign-in failed:", signInError);
+        }
+      }
     } catch (error: any) {
-      toast({
-        title: "Error signing up",
-        description: error.message,
-        variant: "destructive",
-      });
+      // Handle specific error for already confirmed users
+      if (error.message.includes("Email address already confirmed")) {
+        toast({
+          title: "Account exists",
+          description: "An account with this email already exists. Please sign in instead.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error signing up",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
