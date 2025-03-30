@@ -1,8 +1,29 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, LineChart, PieChart } from "@/components/ui/chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Activity, BarChart3, PieChart as PieChartIcon, TrendingUp, AlertTriangle } from "lucide-react";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent
+} from "@/components/ui/chart";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Cell
+} from "recharts";
 
 const reportImpactData = {
   monthly: [
@@ -34,6 +55,11 @@ const reportImpactData = {
     criticalIncidents: 120,
   }
 };
+
+// Color arrays for different charts
+const COLORS = ["#3B82F6", "#F59E0B", "#EF4444", "#8B5CF6", "#10B981"];
+const BLUE_COLORS = ["#1E40AF", "#3B82F6", "#93C5FD", "#BFDBFE", "#DBEAFE"];
+const RED_COLORS = ["#B91C1C", "#DC2626", "#EF4444", "#F87171", "#FCA5A5"];
 
 export default function ReportStats() {
   return (
@@ -109,14 +135,43 @@ export default function ReportStats() {
               <CardTitle className="text-base">Report & Impact Trends</CardTitle>
             </CardHeader>
             <CardContent>
-              <LineChart 
-                data={reportImpactData.monthly}
-                categories={["reports", "affected", "incidents"]}
-                index="name"
-                colors={["blue", "amber", "red"]}
-                valueFormatter={(value) => `${value} cases`}
-                className="h-80"
-              />
+              <ChartContainer className="h-80" config={{}}>
+                <LineChart
+                  data={reportImpactData.monthly}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip 
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="rounded-lg border bg-background p-2 shadow-sm">
+                            <div className="font-medium">{label}</div>
+                            {payload.map((entry) => (
+                              <div key={entry.name} className="flex items-center gap-2">
+                                <div 
+                                  className="h-2 w-2 rounded"
+                                  style={{ backgroundColor: entry.color }}
+                                />
+                                <span className="text-sm text-muted-foreground">
+                                  {entry.name}: {entry.value} cases
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Legend />
+                  <Line type="monotone" dataKey="reports" stroke="#3B82F6" name="Reports" />
+                  <Line type="monotone" dataKey="affected" stroke="#F59E0B" name="Affected" />
+                  <Line type="monotone" dataKey="incidents" stroke="#EF4444" name="Incidents" />
+                </LineChart>
+              </ChartContainer>
             </CardContent>
           </Card>
         </TabsContent>
@@ -128,14 +183,28 @@ export default function ReportStats() {
             </CardHeader>
             <CardContent>
               <div className="flex h-80">
-                <PieChart 
-                  data={reportImpactData.categories}
-                  category="value"
-                  index="name"
-                  colors={["blue", "cyan", "indigo", "violet", "purple"]}
-                  valueFormatter={(value) => `${value}%`}
-                  className="h-80"
-                />
+                <ChartContainer className="h-80" config={{}}>
+                  <PieChart>
+                    <Pie
+                      data={reportImpactData.categories}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {reportImpactData.categories.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={BLUE_COLORS[index % BLUE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value) => [`${value}%`, 'Percentage']}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ChartContainer>
               </div>
             </CardContent>
           </Card>
@@ -147,14 +216,25 @@ export default function ReportStats() {
               <CardTitle className="text-base">Case Severity Distribution</CardTitle>
             </CardHeader>
             <CardContent>
-              <BarChart 
-                data={reportImpactData.severityDistribution}
-                categories={["value"]}
-                index="name"
-                colors={["red"]}
-                valueFormatter={(value) => `${value}%`}
-                className="h-80"
-              />
+              <ChartContainer className="h-80" config={{}}>
+                <BarChart
+                  data={reportImpactData.severityDistribution}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip
+                    formatter={(value) => [`${value}%`, 'Percentage']}
+                  />
+                  <Legend />
+                  <Bar dataKey="value" name="Percentage" fill="#EF4444">
+                    {reportImpactData.severityDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={RED_COLORS[index % RED_COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ChartContainer>
             </CardContent>
           </Card>
         </TabsContent>
