@@ -1,4 +1,6 @@
+
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,23 +16,31 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CustomProgress } from "@/components/ui/custom-progress";
 import { useToast } from "@/components/ui/use-toast";
-import { Upload, Info, CheckCircle2, AlertCircle } from "lucide-react";
+import { Upload, Info, CheckCircle2, AlertCircle, Loader } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Report() {
   const [step, setStep] = useState(1);
   const [file, setFile] = useState<File | null>(null);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
+  const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
   const [confidenceScore, setConfidenceScore] = useState<number | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [reportData, setReportData] = useState({
+    title: "",
     type: "",
     source: "",
     description: "",
     contact: "",
   });
+  
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -51,7 +61,47 @@ export default function Report() {
     setReportData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAnalyze = () => {
+  const uploadFile = async () => {
+    if (!file || !user) return null;
+    
+    try {
+      setIsUploading(true);
+      
+      // Create a unique file path
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
+      
+      // Upload the file
+      const { error: uploadError, data } = await supabase.storage
+        .from('reports')
+        .upload(filePath, file);
+        
+      if (uploadError) {
+        throw uploadError;
+      }
+      
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('reports')
+        .getPublicUrl(filePath);
+        
+      setUploadedFileUrl(publicUrl);
+      return publicUrl;
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: "Error uploading file",
+        description: error.message,
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleAnalyze = async () => {
     if (!file) {
       toast({
         title: "Error",
@@ -61,7 +111,24 @@ export default function Report() {
       return;
     }
 
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to analyze and report deepfakes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
+
+    // Upload the file first
+    const fileUrl = await uploadFile();
+    
+    if (!fileUrl) {
+      setIsAnalyzing(false);
+      return;
+    }
 
     // Simulate AI analysis
     setTimeout(() => {
@@ -93,8 +160,8 @@ export default function Report() {
     }, 3000);
   };
 
-  const handleSubmitReport = () => {
-    if (!reportData.type || !reportData.description) {
+  const handleSubmitReport = async () => {
+    if (!reportData.title || !reportData.description || !reportData.type) {
       toast({
         title: "Error",
         description: "Please fill out all required fields.",
@@ -103,18 +170,60 @@ export default function Report() {
       return;
     }
 
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to submit reports.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
-    // Simulate API submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      // Create the report in Supabase
+      const { data, error } = await supabase
+        .from('reports')
+        .insert({
+          user_id: user.id,
+          title: reportData.title,
+          description: reportData.description,
+          media_url: uploadedFileUrl,
+          source_url: reportData.source,
+          content_type: reportData.type,
+          confidence_score: confidenceScore,
+          status: 'pending'
+        })
+        .select()
+        .single();
+        
+      if (error) {
+        throw error;
+      }
+
+      // Success - move to step 3
       setStep(3);
       
       toast({
         title: "Report submitted",
         description: "Your deepfake report has been submitted successfully.",
       });
-    }, 2000);
+      
+      // Navigate to the report details page
+      setTimeout(() => {
+        navigate(`/report-details/${data.id}`);
+      }, 3000);
+    } catch (error: any) {
+      console.error('Error submitting report:', error);
+      toast({
+        title: "Error submitting report",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -212,6 +321,7 @@ export default function Report() {
                       onClick={() => {
                         setFile(null);
                         setFileUrl(null);
+                        setUploadedFileUrl(null);
                       }}
                     >
                       Remove
@@ -254,10 +364,15 @@ export default function Report() {
               <div className="flex justify-end">
                 <Button 
                   onClick={handleAnalyze} 
-                  disabled={!file || isAnalyzing}
+                  disabled={!file || isAnalyzing || isUploading}
                   className="min-w-[120px]"
                 >
-                  {isAnalyzing ? (
+                  {isUploading ? (
+                    <>
+                      <Loader className="mr-2 h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : isAnalyzing ? (
                     <>
                       <span className="mr-2">Analyzing</span>
                       <Progress value={50} className="w-12" />
@@ -322,6 +437,17 @@ export default function Report() {
 
               <div className="space-y-4 mb-6">
                 <h3 className="text-lg font-medium mb-2">Report Details</h3>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="title">Report Title</Label>
+                  <Input
+                    id="title"
+                    name="title"
+                    placeholder="Enter a title for your report"
+                    value={reportData.title}
+                    onChange={handleInputChange}
+                  />
+                </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="type">Type of Content</Label>
@@ -396,7 +522,14 @@ export default function Report() {
                   disabled={isSubmitting}
                   className="min-w-[120px]"
                 >
-                  {isSubmitting ? "Submitting..." : "Submit Report"}
+                  {isSubmitting ? (
+                    <>
+                      <Loader className="mr-2 h-4 w-4 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Submit Report"
+                  )}
                 </Button>
               </div>
             </CardContent>
@@ -417,18 +550,15 @@ export default function Report() {
                 </p>
                 
                 <div className="bg-muted/50 rounded-lg p-4 mb-6 mx-auto max-w-md text-left">
-                  <h4 className="font-medium mb-2">Report ID: {Math.random().toString(36).substring(2, 10).toUpperCase()}</h4>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    <span className="font-medium">Status:</span> Pending Review
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    <span className="font-medium">Submitted:</span> {new Date().toLocaleDateString()}
-                  </p>
+                  <h4 className="font-medium mb-2">Redirecting to report details...</h4>
+                  <div className="w-full bg-muted h-1 rounded-full overflow-hidden">
+                    <div className="bg-fakenik-blue h-full animate-pulse" style={{ width: '100%' }}></div>
+                  </div>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button variant="outline" asChild>
-                    <Link to="/track">Track Your Reports</Link>
+                    <Link to="/track">View All Reports</Link>
                   </Button>
                   <Button asChild>
                     <Link to="/report">Submit Another Report</Link>

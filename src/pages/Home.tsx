@@ -1,10 +1,91 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Search, Shield, Award, Lock, BarChart3, MessageSquare } from "lucide-react";
+import { Search, Shield, Award, MessageSquare, Heart, Share2, MessageCircle, CheckCircle, AlertTriangle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export default function Home() {
+  const [newsItems, setNewsItems] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    async function fetchNews() {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('news')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          throw error;
+        }
+
+        setNewsItems(data || []);
+      } catch (error: any) {
+        console.error('Error fetching news:', error);
+        toast({
+          title: "Error fetching news",
+          description: error.message,
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchNews();
+  }, [toast]);
+
+  const handleLike = async (newsId: string, currentLikes: number) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to like news items",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('news')
+        .update({ likes: currentLikes + 1 })
+        .eq('id', newsId);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update local state
+      setNewsItems(newsItems.map(item => 
+        item.id === newsId ? { ...item, likes: item.likes + 1 } : item
+      ));
+    } catch (error: any) {
+      console.error('Error liking news:', error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -42,6 +123,153 @@ export default function Home() {
           </div>
         </div>
         <div className="absolute left-0 right-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent"></div>
+      </section>
+
+      {/* News Carousel Section */}
+      <section className="py-12 px-4 bg-background">
+        <div className="container mx-auto">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
+            <h2 className="text-3xl font-bold">Latest News & Updates</h2>
+            <Link to="/forum">
+              <Button variant="outline">
+                View All News
+                <span className="sr-only">View all news</span>
+              </Button>
+            </Link>
+          </div>
+
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="flex flex-col items-center gap-2">
+                <div className="h-12 w-12 rounded-full border-4 border-fakenik-blue/30 border-t-fakenik-blue animate-spin"></div>
+                <p className="text-muted-foreground">Loading latest news...</p>
+              </div>
+            </div>
+          ) : newsItems.length > 0 ? (
+            <div className="space-y-8">
+              {/* Featured News Item */}
+              <div className="relative overflow-hidden rounded-xl">
+                <div className="relative h-[400px] md:h-[500px] bg-black">
+                  <img 
+                    src={newsItems[0]?.image_url || "https://images.unsplash.com/photo-1518770660439-4636190af475"} 
+                    alt={newsItems[0]?.title} 
+                    className="w-full h-full object-cover opacity-70"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                    <div className="mb-4">
+                      <Badge className="bg-red-600 hover:bg-red-700">Breaking News</Badge>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">{newsItems[0]?.title}</h3>
+                    <p className="text-white/90 mb-4 line-clamp-2">{newsItems[0]?.content}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8 border-2 border-white">
+                          <AvatarImage src={newsItems[0]?.author_avatar} />
+                          <AvatarFallback>{newsItems[0]?.author.substring(0, 2).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center">
+                            <span className="text-white text-sm font-medium">{newsItems[0]?.author}</span>
+                            {newsItems[0]?.verified && (
+                              <CheckCircle className="ml-1 h-3.5 w-3.5 text-fakenik-blue fill-white" />
+                            )}
+                          </div>
+                          <span className="text-white/70 text-xs">@{newsItems[0]?.author_handle}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <button 
+                          onClick={() => handleLike(newsItems[0]?.id, newsItems[0]?.likes)}
+                          className="flex items-center gap-1 text-white/80 hover:text-white"
+                        >
+                          <Heart className="h-4 w-4" />
+                          <span className="text-xs">{newsItems[0]?.likes}</span>
+                        </button>
+                        <button className="flex items-center gap-1 text-white/80 hover:text-white">
+                          <MessageCircle className="h-4 w-4" />
+                          <span className="text-xs">{newsItems[0]?.comments}</span>
+                        </button>
+                        <button className="flex items-center gap-1 text-white/80 hover:text-white">
+                          <Share2 className="h-4 w-4" />
+                          <span className="text-xs">{newsItems[0]?.shares}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Carousel of other news */}
+              <div className="mt-8">
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    {newsItems.slice(1).map((news) => (
+                      <CarouselItem key={news.id} className="sm:basis-1/2 lg:basis-1/3">
+                        <div className="p-1">
+                          <Card className="overflow-hidden">
+                            <div className="relative h-48">
+                              <img 
+                                src={news.image_url || "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b"} 
+                                alt={news.title} 
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute top-2 right-2">
+                                <Badge className="bg-black/70 text-white hover:bg-black/80">{news.category}</Badge>
+                              </div>
+                            </div>
+                            <CardContent className="p-4">
+                              <h4 className="text-lg font-bold line-clamp-2 mb-2">{news.title}</h4>
+                              <p className="text-muted-foreground text-sm line-clamp-2 mb-3">{news.content}</p>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="h-6 w-6">
+                                    <AvatarImage src={news.author_avatar} />
+                                    <AvatarFallback>{news.author.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex items-center">
+                                    <span className="text-xs font-medium">{news.author}</span>
+                                    {news.verified && (
+                                      <CheckCircle className="ml-1 h-3 w-3 text-fakenik-blue fill-background" />
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <button 
+                                    onClick={() => handleLike(news.id, news.likes)}
+                                    className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                                  >
+                                    <Heart className="h-3 w-3" />
+                                    <span className="text-xs">{news.likes}</span>
+                                  </button>
+                                  <button className="flex items-center gap-1 text-muted-foreground hover:text-foreground">
+                                    <MessageCircle className="h-3 w-3" />
+                                    <span className="text-xs">{news.comments}</span>
+                                  </button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <div className="hidden sm:flex">
+                    <CarouselPrevious />
+                    <CarouselNext />
+                  </div>
+                </Carousel>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-center py-12">
+              <div className="flex flex-col items-center gap-2">
+                <AlertTriangle className="h-12 w-12 text-muted-foreground" />
+                <p className="text-muted-foreground">No news items found</p>
+              </div>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Features Section */}
@@ -82,7 +310,7 @@ export default function Home() {
             <Card className="bg-card border-border hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center justify-center h-12 w-12 rounded-md bg-fakenik-blue/10 text-fakenik-blue mb-5">
-                  <BarChart3 className="h-6 w-6" />
+                  <Search className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Track</h3>
                 <p className="text-muted-foreground">

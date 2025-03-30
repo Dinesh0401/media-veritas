@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -25,61 +26,62 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Search, FileText, Clock, CheckCircle, AlertTriangle } from "lucide-react";
-import { Link } from "react-router-dom";
-
-// Mock data for reported deepfakes
-const mockReports = [
-  {
-    id: "REP7821X",
-    date: "2023-11-15",
-    type: "Face Swap",
-    confidence: 92,
-    status: "resolved",
-    statusMessage: "Confirmed deepfake, content removed",
-  },
-  {
-    id: "REP6531A",
-    date: "2023-11-10",
-    type: "Voice Clone",
-    confidence: 87,
-    status: "in-review",
-    statusMessage: "Under expert review",
-  },
-  {
-    id: "REP9021B",
-    date: "2023-11-08",
-    type: "Scene Manipulation",
-    confidence: 75,
-    status: "pending",
-    statusMessage: "Awaiting initial review",
-  },
-  {
-    id: "REP4328C",
-    date: "2023-11-01",
-    type: "Full Body",
-    confidence: 94,
-    status: "resolved",
-    statusMessage: "Confirmed deepfake, content removed",
-  },
-  {
-    id: "REP2198D",
-    date: "2023-10-25",
-    type: "Face Swap",
-    confidence: 68,
-    status: "rejected",
-    statusMessage: "Analysis inconclusive",
-  },
-];
+import { AlertCircle, Search, FileText, Clock, CheckCircle, AlertTriangle, Loader } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Track() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // For demo, assume not logged in initially
+  const [reports, setReports] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Only fetch reports if user is logged in
+    if (user) {
+      fetchReports();
+    } else {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  async function fetchReports() {
+    try {
+      setIsLoading(true);
+      
+      let query = supabase
+        .from('reports')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+      
+      const { data, error } = await query;
+      
+      if (error) {
+        throw error;
+      }
+      
+      setReports(data || []);
+    } catch (error: any) {
+      console.error('Error fetching reports:', error);
+      toast({
+        title: "Error loading reports",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   // Filter reports based on search term and status filter
-  const filteredReports = mockReports.filter((report) => {
-    const matchesSearch = report.id.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredReports = reports.filter((report) => {
+    const matchesSearch = report.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          report.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filter === "all" || report.status === filter;
     return matchesSearch && matchesFilter;
   });
@@ -115,6 +117,28 @@ export default function Track() {
     }
   };
 
+  // Format date to be more readable
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
+  // Handle viewing a report
+  const handleViewReport = (reportId: string) => {
+    navigate(`/report-details/${reportId}`);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-12 px-4 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <Loader className="h-8 w-8 animate-spin text-fakenik-blue" />
+          <p className="text-muted-foreground">Loading reports...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-12 px-4">
       <div className="max-w-5xl mx-auto">
@@ -125,14 +149,14 @@ export default function Track() {
           </p>
         </div>
 
-        {isLoggedIn ? (
+        {user ? (
           <>
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
               <div className="relative w-full md:w-auto">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   type="text"
-                  placeholder="Search by report ID..."
+                  placeholder="Search by report ID or title..."
                   className="pl-9 w-full md:w-[300px]"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -155,73 +179,102 @@ export default function Track() {
               </div>
             </div>
 
-            {filteredReports.length > 0 ? (
-              <Card>
-                <CardContent className="p-0">
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Report ID</TableHead>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Type</TableHead>
-                          <TableHead>Confidence</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredReports.map((report) => {
-                          const { color, icon } = getStatusDetails(report.status);
-                          return (
-                            <TableRow key={report.id}>
-                              <TableCell className="font-medium">{report.id}</TableCell>
-                              <TableCell>{report.date}</TableCell>
-                              <TableCell>{report.type}</TableCell>
-                              <TableCell>
-                                <div className="flex items-center">
-                                  <div 
-                                    className={`w-2 h-2 rounded-full mr-2 ${
-                                      report.confidence > 80 
-                                        ? "bg-red-500" 
-                                        : report.confidence > 60 
-                                        ? "bg-orange-500" 
-                                        : "bg-green-500"
-                                    }`}
-                                  ></div>
-                                  {report.confidence}%
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <Badge variant="outline" className={`${color} flex w-fit items-center gap-1 capitalize`}>
-                                  {icon}
-                                  {report.status.replace("-", " ")}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <Button variant="ghost" size="sm">View Details</Button>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </CardContent>
-              </Card>
+            {reports.length > 0 ? (
+              filteredReports.length > 0 ? (
+                <Card>
+                  <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Report ID</TableHead>
+                            <TableHead>Title</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Confidence</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredReports.map((report) => {
+                            const { color, icon } = getStatusDetails(report.status);
+                            const shortId = report.id.substring(0, 8).toUpperCase();
+                            
+                            return (
+                              <TableRow key={report.id}>
+                                <TableCell className="font-medium">{shortId}</TableCell>
+                                <TableCell className="max-w-[200px] truncate">{report.title}</TableCell>
+                                <TableCell>{formatDate(report.created_at)}</TableCell>
+                                <TableCell>{report.content_type}</TableCell>
+                                <TableCell>
+                                  <div className="flex items-center">
+                                    <div 
+                                      className={`w-2 h-2 rounded-full mr-2 ${
+                                        report.confidence_score > 80 
+                                          ? "bg-red-500" 
+                                          : report.confidence_score > 60 
+                                          ? "bg-orange-500" 
+                                          : "bg-green-500"
+                                      }`}
+                                    ></div>
+                                    {report.confidence_score}%
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className={`${color} flex w-fit items-center gap-1 capitalize`}>
+                                    {icon}
+                                    {report.status.replace("-", " ")}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => handleViewReport(report.id)}
+                                  >
+                                    View Details
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="p-6 text-center">
+                    <div className="py-8">
+                      <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Search className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <h3 className="text-lg font-medium mb-2">No reports found</h3>
+                      <p className="text-muted-foreground mb-4">
+                        We couldn't find any reports matching your search criteria.
+                      </p>
+                      <Button onClick={() => { setSearchTerm(""); setFilter("all"); }}>
+                        Clear Filters
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
             ) : (
               <Card>
                 <CardContent className="p-6 text-center">
                   <div className="py-8">
                     <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Search className="h-6 w-6 text-muted-foreground" />
+                      <FileText className="h-6 w-6 text-muted-foreground" />
                     </div>
-                    <h3 className="text-lg font-medium mb-2">No reports found</h3>
+                    <h3 className="text-lg font-medium mb-2">No reports yet</h3>
                     <p className="text-muted-foreground mb-4">
-                      We couldn't find any reports matching your search criteria.
+                      You haven't submitted any deepfake reports yet. Create your first report to get started.
                     </p>
-                    <Button onClick={() => { setSearchTerm(""); setFilter("all"); }}>
-                      Clear Filters
+                    <Button asChild>
+                      <Link to="/report">Create Report</Link>
                     </Button>
                   </div>
                 </CardContent>
@@ -263,7 +316,7 @@ export default function Track() {
             <CardContent>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Input
-                  placeholder="Enter report ID (e.g., REP7821X)"
+                  placeholder="Enter report ID (e.g., 5F6A8B23)"
                   className="flex-1"
                 />
                 <Button>Track Report</Button>

@@ -1,130 +1,114 @@
 
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { 
-  CheckCircle, 
-  MessageCircle, 
-  Repeat, 
-  Heart, 
-  Bookmark, 
-  Share2, 
-  RefreshCw 
-} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Search, Heart, MessageCircle, Share2, CheckCircle } from "lucide-react";
 import { NewsItemProps } from "../types";
-import { toast } from "@/components/ui/use-toast";
 
 interface LatestNewsProps {
   newsTab: string;
-  setNewsTab: (tab: string) => void;
+  setNewsTab: (value: string) => void;
   filteredNews: NewsItemProps[];
+  onLike: (newsId: number) => void;
 }
 
-export default function LatestNews({ newsTab, setNewsTab, filteredNews }: LatestNewsProps) {
-  const [likedNews, setLikedNews] = useState<number[]>([]);
-
-  const handleLike = (newsId: number) => {
-    if (likedNews.includes(newsId)) {
-      setLikedNews(likedNews.filter(id => id !== newsId));
-      toast({
-        title: "Removed like",
-        description: "You've unliked this news item",
-      });
-    } else {
-      setLikedNews([...likedNews, newsId]);
-      toast({
-        title: "Added like",
-        description: "You've liked this news item",
-      });
-    }
-  };
-
+export default function LatestNews({ newsTab, setNewsTab, filteredNews, onLike }: LatestNewsProps) {
   return (
-    <>
-      <Card className="mb-6">
-        <CardContent className="p-4">
-          <Tabs value={newsTab} onValueChange={setNewsTab}>
-            <TabsList className="w-full">
-              <TabsTrigger value="all">All News</TabsTrigger>
-              <TabsTrigger value="deepfake">Deepfake</TabsTrigger>
-              <TabsTrigger value="ai">AI</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </CardContent>
-      </Card>
-      
-      <div className="space-y-4">
-        {filteredNews.map((news) => (
-          <Card key={news.id} className="hover:bg-accent/10 transition-colors">
-            <CardContent className="p-4">
-              <div className="flex gap-3">
-                <Avatar className="h-10 w-10 flex-shrink-0">
-                  <AvatarImage src="" alt={news.author} />
-                  <AvatarFallback>{news.authorAvatar}</AvatarFallback>
-                </Avatar>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1">
-                    <span className="font-semibold">{news.author}</span>
-                    {news.verified && (
-                      <span className="text-fakenik-blue">
-                        <CheckCircle className="h-3.5 w-3.5" />
-                      </span>
-                    )}
-                    <span className="text-muted-foreground text-sm">{news.handle}</span>
-                    <span className="text-muted-foreground text-sm">· {news.timePosted}</span>
+    <div>
+      <Tabs value={newsTab} onValueChange={setNewsTab} className="mb-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="Deepfake">Deepfake</TabsTrigger>
+          <TabsTrigger value="AI">AI</TabsTrigger>
+          <TabsTrigger value="Tech">Tech</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {filteredNews.length > 0 ? (
+        <div className="space-y-4">
+          {filteredNews.map((news) => (
+            <Card key={news.id} className="overflow-hidden">
+              <CardContent className="p-0">
+                <div className="p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Avatar>
+                      <AvatarImage src={news.authorAvatar} />
+                      <AvatarFallback>{news.author.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="flex items-center">
+                        <span className="font-medium">{news.author}</span>
+                        {news.verified && (
+                          <CheckCircle className="ml-1 h-3.5 w-3.5 text-fakenik-blue fill-white" />
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs">
+                        <span>@{news.handle}</span>
+                        <span>•</span>
+                        <span>{news.timePosted}</span>
+                      </div>
+                    </div>
+                    <div className="ml-auto">
+                      <Badge variant="outline">{news.category}</Badge>
+                    </div>
                   </div>
                   
-                  <p className="mt-1 text-sm sm:text-base">{news.content}</p>
+                  <p className="mb-4">{news.content}</p>
                   
-                  {news.hasImage && (
-                    <div className="mt-3 rounded-lg overflow-hidden border">
+                  {news.hasImage && news.imageUrl && (
+                    <div className="mb-4 rounded-md overflow-hidden">
                       <img 
                         src={news.imageUrl} 
-                        alt="News content" 
-                        className="w-full h-auto object-cover"
+                        alt={news.content} 
+                        className="w-full object-cover" 
                       />
                     </div>
                   )}
                   
-                  <div className="flex mt-3 justify-between text-muted-foreground">
-                    <button className="flex items-center gap-1 text-xs hover:text-primary transition-colors">
-                      <MessageCircle className="h-3.5 w-3.5" />
-                      <span>{news.comments}</span>
-                    </button>
-                    <button className="flex items-center gap-1 text-xs hover:text-green-500 transition-colors">
-                      <Repeat className="h-3.5 w-3.5" />
-                      <span>{news.shares}</span>
-                    </button>
-                    <button 
-                      className={`flex items-center gap-1 text-xs hover:text-red-500 transition-colors ${likedNews.includes(news.id) ? 'text-red-500' : ''}`}
-                      onClick={() => handleLike(news.id)}
-                    >
-                      <Heart className={`h-3.5 w-3.5 ${likedNews.includes(news.id) ? 'fill-red-500' : ''}`} />
-                      <span>{likedNews.includes(news.id) ? news.likes + 1 : news.likes}</span>
-                    </button>
-                    <button className="flex items-center gap-1 text-xs hover:text-primary transition-colors">
-                      <Bookmark className="h-3.5 w-3.5" />
-                    </button>
-                    <button className="flex items-center gap-1 text-xs hover:text-primary transition-colors">
-                      <Share2 className="h-3.5 w-3.5" />
-                    </button>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-6">
+                      <button 
+                        className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                        onClick={() => onLike(news.id)}
+                      >
+                        <Heart className="h-4 w-4" />
+                        <span>{news.likes}</span>
+                      </button>
+                      <button className="flex items-center gap-1 text-muted-foreground hover:text-foreground">
+                        <MessageCircle className="h-4 w-4" />
+                        <span>{news.comments}</span>
+                      </button>
+                      <button className="flex items-center gap-1 text-muted-foreground hover:text-foreground">
+                        <Share2 className="h-4 w-4" />
+                        <span>{news.shares}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-        
-        <div className="flex justify-center py-4">
-          <Button variant="outline" className="flex items-center gap-2">
-            <RefreshCw className="h-4 w-4" />
-            Load More News
-          </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      </div>
-    </>
+      ) : (
+        <Card>
+          <CardContent className="p-6 text-center">
+            <div className="py-8">
+              <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-medium mb-2">No news found</h3>
+              <p className="text-muted-foreground mb-4">
+                There are no news items in this category.
+              </p>
+              <Button onClick={() => setNewsTab("all")}>
+                Show All News
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }

@@ -9,7 +9,194 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      discussion_replies: {
+        Row: {
+          content: string
+          created_at: string
+          discussion_id: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          discussion_id: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          discussion_id?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discussion_replies_discussion_id_fkey"
+            columns: ["discussion_id"]
+            isOneToOne: false
+            referencedRelation: "discussions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discussions: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          pinned: boolean | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+          views: number | null
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          id?: string
+          pinned?: boolean | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+          views?: number | null
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          pinned?: boolean | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          views?: number | null
+        }
+        Relationships: []
+      }
+      news: {
+        Row: {
+          author: string
+          author_avatar: string | null
+          author_handle: string
+          category: string
+          comments: number | null
+          content: string
+          created_at: string
+          id: string
+          image_url: string | null
+          likes: number | null
+          shares: number | null
+          title: string
+          verified: boolean | null
+        }
+        Insert: {
+          author: string
+          author_avatar?: string | null
+          author_handle: string
+          category: string
+          comments?: number | null
+          content: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          likes?: number | null
+          shares?: number | null
+          title: string
+          verified?: boolean | null
+        }
+        Update: {
+          author?: string
+          author_avatar?: string | null
+          author_handle?: string
+          category?: string
+          comments?: number | null
+          content?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          likes?: number | null
+          shares?: number | null
+          title?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          confidence_score: number | null
+          content_type: string
+          created_at: string
+          description: string
+          id: string
+          media_url: string | null
+          source_url: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          content_type: string
+          created_at?: string
+          description: string
+          id?: string
+          media_url?: string | null
+          source_url?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          content_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          media_url?: string | null
+          source_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

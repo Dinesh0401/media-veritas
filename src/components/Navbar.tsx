@@ -1,13 +1,24 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Shield, Menu, X } from "lucide-react";
+import { Shield, Menu, X, User, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, userDetails, signOut } = useAuth();
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -15,6 +26,16 @@ export default function Navbar() {
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const getInitials = (name: string) => {
+    if (!name) return "FN";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
   };
 
   return (
@@ -63,12 +84,46 @@ export default function Navbar() {
 
         {/* Auth Buttons */}
         <div className="hidden md:flex items-center gap-2">
-          <Link to="/login">
-            <Button variant="outline" size="sm">Log in</Button>
-          </Link>
-          <Link to="/register">
-            <Button size="sm">Sign up</Button>
-          </Link>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src={userDetails?.avatar_url} />
+                    <AvatarFallback>{getInitials(userDetails?.full_name || user.email || "")}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{userDetails?.full_name || "User"}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => signOut()}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="outline" size="sm">Log in</Button>
+              </Link>
+              <Link to="/register">
+                <Button size="sm">Sign up</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -117,12 +172,40 @@ export default function Navbar() {
               About
             </Link>
             <div className="flex flex-col space-y-2 pt-2">
-              <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="outline" className="w-full">Log in</Button>
-              </Link>
-              <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
-                <Button className="w-full">Sign up</Button>
-              </Link>
+              {user ? (
+                <>
+                  <div className="flex items-center space-x-2 py-2">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={userDetails?.avatar_url} />
+                      <AvatarFallback>{getInitials(userDetails?.full_name || user.email || "")}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-medium">{userDetails?.full_name || "User"}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={() => {
+                      signOut();
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full">Log in</Button>
+                  </Link>
+                  <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full">Sign up</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </div>

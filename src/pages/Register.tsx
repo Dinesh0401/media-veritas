@@ -1,36 +1,29 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Shield, Eye, EyeOff } from "lucide-react";
+import { Link, Navigate } from "react-router-dom";
+import { Shield, Eye, EyeOff, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const { signUp, isLoading, user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      // Success toast
-      toast({
-        title: "Success",
-        description: "Your account has been created. Please check your email to verify your account.",
-      });
-      // In a real app, we would redirect after successful registration
-    }, 1500);
+    await signUp(email, password, name);
   };
+
+  // Redirect if already logged in
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="container mx-auto py-12 px-4 flex flex-col items-center">
@@ -111,7 +104,14 @@ export default function Register() {
           </div>
           
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Creating account..." : "Create account"}
+            {isLoading ? (
+              <>
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                Creating account...
+              </>
+            ) : (
+              "Create account"
+            )}
           </Button>
         </form>
         

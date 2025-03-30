@@ -1,22 +1,77 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare } from "lucide-react";
-import { mockDiscussions, latestNews, trendingTags } from "./data/mockData";
+import { MessageSquare, Loader, AlertTriangle } from "lucide-react";
+import { mockDiscussions, trendingTags } from "./data/mockData";
 import { getCategoryColor } from "./utils/helpers";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Components
 import ForumCategories from "./components/ForumCategories";
 import DiscussionList from "./components/DiscussionList";
 import LatestNews from "./components/LatestNews";
 import SidebarStats from "./components/SidebarStats";
+import { NewsItemProps } from "./types";
 
 export default function Forum() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("latest");
   const [newsTab, setNewsTab] = useState("all");
+  const [newsItems, setNewsItems] = useState<NewsItemProps[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+  const { user } = useAuth();
+  
+  useEffect(() => {
+    async function fetchNews() {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('news')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          throw error;
+        }
+
+        // Transform data to match NewsItemProps format
+        const formattedNews: NewsItemProps[] = (data || []).map((item: any) => ({
+          id: item.id,
+          author: item.author,
+          handle: item.author_handle,
+          authorAvatar: item.author_avatar,
+          content: item.content,
+          timePosted: new Date(item.created_at).toLocaleString(),
+          likes: item.likes,
+          comments: item.comments,
+          shares: item.shares,
+          verified: item.verified,
+          hasImage: !!item.image_url,
+          imageUrl: item.image_url,
+          category: item.category,
+          metadata: item
+        }));
+
+        setNewsItems(formattedNews);
+      } catch (error: any) {
+        console.error('Error fetching news:', error);
+        toast({
+          title: "Error fetching news",
+          description: error.message,
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchNews();
+  }, [toast]);
   
   const filteredDiscussions = mockDiscussions.filter((discussion) => {
     const matchesSearch = discussion.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -36,7 +91,7 @@ export default function Forum() {
     return 0;
   });
 
-  const filteredNews = latestNews.filter((news) => {
+  const filteredNews = newsItems.filter((news) => {
     return newsTab === "all" || news.category === newsTab;
   });
   
@@ -45,6 +100,61 @@ export default function Forum() {
     setCategoryFilter("all"); 
     setActiveTab("latest");
   };
+
+  const handleLikeNews = async (newsId: number) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to like news items",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Find the current news item
+      const newsItem = newsItems.find(item => item.id === newsId);
+      if (!newsItem) return;
+
+      // Update the database
+      const { error } = await supabase
+        .from('news')
+        .update({ likes: newsItem.likes + 1 })
+        .eq('id', newsId);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update the local state
+      setNewsItems(newsItems.map(item => 
+        item.id === newsId ? { ...item, likes: item.likes + 1 } : item
+      ));
+
+      toast({
+        title: "Liked!",
+        description: "You've liked this news item.",
+      });
+    } catch (error: any) {
+      console.error('Error liking news:', error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-12 px-4 flex items-center justify-center h-[50vh]">
+        <div className="flex flex-col items-center gap-2">
+          <Loader className="h-8 w-8 animate-spin text-fakenik-blue" />
+          <p className="text-muted-foreground">Loading forum data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-12 px-4">
@@ -56,7 +166,16 @@ export default function Forum() {
               Discuss deepfake incidents, share knowledge, and stay updated with the latest news
             </p>
           </div>
-          <Button>
+          <Button onClick={() => {
+            if (!user) {
+              toast({
+                title: "Authentication required",
+                description: "Please sign in to create a discussion",
+                variant: "destructive",
+              });
+              return;
+            }
+          }}>
             <MessageSquare className="mr-2 h-4 w-4" />
             New Discussion
           </Button>
@@ -100,6 +219,7 @@ export default function Forum() {
                   newsTab={newsTab}
                   setNewsTab={setNewsTab}
                   filteredNews={filteredNews}
+                  onLike={handleLikeNews}
                 />
               </TabsContent>
             </Tabs>
