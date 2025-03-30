@@ -11,7 +11,7 @@ interface LatestNewsProps {
   newsTab: string;
   setNewsTab: (value: string) => void;
   filteredNews: NewsItemProps[];
-  onLike: (newsId: number) => void;
+  onLike: (newsId: string) => void;
 }
 
 export default function LatestNews({ newsTab, setNewsTab, filteredNews, onLike }: LatestNewsProps) {

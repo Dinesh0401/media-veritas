@@ -96,7 +96,7 @@ export const mockDiscussions: DiscussionProps[] = [
 
 export const latestNews: NewsItemProps[] = [
   {
-    id: 1,
+    id: "1",
     author: "TechRadar",
     handle: "@techradar",
     authorAvatar: "TR",
@@ -111,7 +111,7 @@ export const latestNews: NewsItemProps[] = [
     category: "deepfake",
   },
   {
-    id: 2,
+    id: "2",
     author: "AI Insights",
     handle: "@aiinsights",
     authorAvatar: "AI",
@@ -124,7 +124,7 @@ export const latestNews: NewsItemProps[] = [
     category: "ai",
   },
   {
-    id: 3,
+    id: "3",
     author: "TechCrunch",
     handle: "@techcrunch",
     authorAvatar: "TC",
@@ -139,7 +139,7 @@ export const latestNews: NewsItemProps[] = [
     category: "deepfake",
   },
   {
-    id: 4,
+    id: "4",
     author: "AI Daily",
     handle: "@aidaily",
     authorAvatar: "AD",
@@ -152,7 +152,7 @@ export const latestNews: NewsItemProps[] = [
     category: "ai",
   },
   {
-    id: 5,
+    id: "5",
     author: "CNN Tech",
     handle: "@cnntech",
     authorAvatar: "CT",

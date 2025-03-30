@@ -38,7 +38,6 @@ export default function Forum() {
           throw error;
         }
 
-        // Transform data to match NewsItemProps format
         const formattedNews: NewsItemProps[] = (data || []).map((item: any) => ({
           id: item.id,
           author: item.author,
@@ -111,11 +110,9 @@ export default function Forum() {
     }
 
     try {
-      // Find the current news item
       const newsItem = newsItems.find(item => item.id === newsId);
       if (!newsItem) return;
 
-      // Update the database
       const { error } = await supabase
         .from('news')
         .update({ likes: newsItem.likes + 1 })
@@ -125,7 +122,6 @@ export default function Forum() {
         throw error;
       }
 
-      // Update the local state
       setNewsItems(newsItems.map(item => 
         item.id === newsId ? { ...item, likes: item.likes + 1 } : item
       ));
