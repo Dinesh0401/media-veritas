@@ -30,6 +30,7 @@ import { AlertCircle, Search, FileText, Clock, CheckCircle, AlertTriangle, Loade
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import TrackVisualization from "@/components/TrackVisualization";
 
 export default function Track() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -280,6 +281,9 @@ export default function Track() {
                 </CardContent>
               </Card>
             )}
+            
+            {/* Add the visualization component regardless of whether there are reports */}
+            <TrackVisualization />
           </>
         ) : (
           <Card>

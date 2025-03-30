@@ -1,14 +1,7 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Activity, BarChart3, PieChart as PieChartIcon, TrendingUp, AlertTriangle } from "lucide-react";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent
-} from "@/components/ui/chart";
+import { ChartContainer } from "@/components/ui/chart";
 import {
   ResponsiveContainer,
   LineChart,
@@ -135,43 +128,45 @@ export default function ReportStats() {
               <CardTitle className="text-base">Report & Impact Trends</CardTitle>
             </CardHeader>
             <CardContent>
-              <ChartContainer className="h-80" config={{}}>
-                <LineChart
-                  data={reportImpactData.monthly}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip 
-                    content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="rounded-lg border bg-background p-2 shadow-sm">
-                            <div className="font-medium">{label}</div>
-                            {payload.map((entry) => (
-                              <div key={entry.name} className="flex items-center gap-2">
-                                <div 
-                                  className="h-2 w-2 rounded"
-                                  style={{ backgroundColor: entry.color }}
-                                />
-                                <span className="text-sm text-muted-foreground">
-                                  {entry.name}: {entry.value} cases
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Legend />
-                  <Line type="monotone" dataKey="reports" stroke="#3B82F6" name="Reports" />
-                  <Line type="monotone" dataKey="affected" stroke="#F59E0B" name="Affected" />
-                  <Line type="monotone" dataKey="incidents" stroke="#EF4444" name="Incidents" />
-                </LineChart>
-              </ChartContainer>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={reportImpactData.monthly}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip 
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="rounded-lg border bg-background p-2 shadow-sm">
+                              <div className="font-medium">{label}</div>
+                              {payload.map((entry) => (
+                                <div key={entry.name} className="flex items-center gap-2">
+                                  <div 
+                                    className="h-2 w-2 rounded"
+                                    style={{ backgroundColor: entry.color }}
+                                  />
+                                  <span className="text-sm text-muted-foreground">
+                                    {entry.name}: {entry.value} cases
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Legend />
+                    <Line type="monotone" dataKey="reports" stroke="#3B82F6" name="Reports" />
+                    <Line type="monotone" dataKey="affected" stroke="#F59E0B" name="Affected" />
+                    <Line type="monotone" dataKey="incidents" stroke="#EF4444" name="Incidents" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -182,8 +177,8 @@ export default function ReportStats() {
               <CardTitle className="text-base">Report Categories</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex h-80">
-                <ChartContainer className="h-80" config={{}}>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={reportImpactData.categories}
@@ -204,7 +199,7 @@ export default function ReportStats() {
                     />
                     <Legend />
                   </PieChart>
-                </ChartContainer>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
@@ -216,25 +211,27 @@ export default function ReportStats() {
               <CardTitle className="text-base">Case Severity Distribution</CardTitle>
             </CardHeader>
             <CardContent>
-              <ChartContainer className="h-80" config={{}}>
-                <BarChart
-                  data={reportImpactData.severityDistribution}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip
-                    formatter={(value) => [`${value}%`, 'Percentage']}
-                  />
-                  <Legend />
-                  <Bar dataKey="value" name="Percentage" fill="#EF4444">
-                    {reportImpactData.severityDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={RED_COLORS[index % RED_COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ChartContainer>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={reportImpactData.severityDistribution}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip
+                      formatter={(value) => [`${value}%`, 'Percentage']}
+                    />
+                    <Legend />
+                    <Bar dataKey="value" name="Percentage" fill="#EF4444">
+                      {reportImpactData.severityDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={RED_COLORS[index % RED_COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

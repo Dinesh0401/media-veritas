@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -31,6 +30,10 @@ export default function Forum() {
     async function fetchNews() {
       try {
         setIsLoading(true);
+        
+        // Add a console log to track execution
+        console.log("Fetching news items from Supabase");
+        
         const { data, error } = await supabase
           .from('news')
           .select('*')
@@ -40,13 +43,33 @@ export default function Forum() {
           throw error;
         }
 
+        console.log("Received news data:", data);
+        
         const mappedNewsPromises = (data || []).map(async (item: any) => {
           const hasImage = !!item.image_url;
           let imageUrl = item.image_url;
           
           // Generate an image for news without images
           if (!hasImage) {
-            imageUrl = await generateNewsImageWithAI(item.content, item.category);
+            console.log(`Generating AI image for news item: ${item.id}`);
+            try {
+              imageUrl = await generateNewsImageWithAI(item.content, item.category);
+              console.log(`Generated AI image URL: ${imageUrl}`);
+              
+              // Optionally update the database with the generated image URL
+              /* const { error: updateError } = await supabase
+                .from('news')
+                .update({ image_url: imageUrl })
+                .eq('id', item.id);
+                
+              if (updateError) {
+                console.error('Error updating news with image URL:', updateError);
+              } */
+            } catch (imageError) {
+              console.error(`Error generating image for news ${item.id}:`, imageError);
+              // Use a default image if generation fails
+              imageUrl = `/public/lovable-uploads/2f7b25f8-532e-4484-90fc-509df6ca96fc.png`;
+            }
           }
           
           return {
@@ -68,6 +91,7 @@ export default function Forum() {
         });
         
         const formattedNews = await Promise.all(mappedNewsPromises);
+        console.log("Formatted news with images:", formattedNews);
         setNewsItems(formattedNews);
       } catch (error: any) {
         console.error('Error fetching news:', error);
