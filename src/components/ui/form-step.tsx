@@ -2,6 +2,7 @@
 import * as React from "react"
 import { Check, CircleHelp } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Progress } from "@/components/ui/progress"
 
 export interface FormStepProps {
   title: string
@@ -13,6 +14,9 @@ export interface FormStepProps {
   children?: React.ReactNode
   isLastStep?: boolean
   className?: string
+  currentStep?: number
+  totalSteps?: number
+  showProgress?: boolean
 }
 
 const FormStep = React.forwardRef<HTMLDivElement, FormStepProps>(
@@ -25,7 +29,10 @@ const FormStep = React.forwardRef<HTMLDivElement, FormStepProps>(
     disabled = false,
     children,
     isLastStep = false,
-    className
+    className,
+    currentStep = 0,
+    totalSteps = 0,
+    showProgress = false
   }, ref) => {
     return (
       <div 
@@ -71,6 +78,16 @@ const FormStep = React.forwardRef<HTMLDivElement, FormStepProps>(
             )}
           </div>
         </div>
+        
+        {showProgress && totalSteps > 0 && (
+          <div className="mb-4 pl-16 pr-4">
+            <div className="flex items-center justify-between text-sm mb-2">
+              <span className="text-muted-foreground">Progress</span>
+              <span className="font-medium">{Math.round((currentStep / totalSteps) * 100)}%</span>
+            </div>
+            <Progress value={(currentStep / totalSteps) * 100} className="h-2" />
+          </div>
+        )}
         
         {active && children && (
           <div className="pl-16 mb-8">
