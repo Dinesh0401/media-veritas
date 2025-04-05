@@ -16,8 +16,7 @@ serve(async (req) => {
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
     const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+    
     // Get the authorization header from the request
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
@@ -52,27 +51,46 @@ serve(async (req) => {
       throw new Error("Report not found");
     }
 
-    // In a real implementation, we would generate the PDF here
-    // This is just a mock response
-    const mockPdfResponse = {
-      success: true,
-      message: "PDF generated successfully",
-      data: {
-        reportId: report.id,
-        title: report.title,
-        userName: report.users?.full_name || "Anonymous",
-        confidenceScore: report.confidence_score,
-        status: report.status,
-        qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=fakenik-report-${report.id}`,
-        pdfUrl: `https://fakenik.gov.in/reports/${report.id}/verification`,
-        verificationCode: Math.random().toString(36).substring(2, 10).toUpperCase(),
-      },
+    // Generate a unique verification code - more complex than the previous one
+    const verificationCode = generateVerificationCode();
+    
+    // In a real implementation, we would generate the actual PDF here
+    // For now, we're creating a more detailed mock response
+    const reportData = {
+      reportId: report.id,
+      title: report.title,
+      userName: report.users?.full_name || "Anonymous",
+      confidenceScore: report.confidence_score,
+      status: report.status,
+      description: report.description,
+      contentType: report.content_type,
+      createdAt: report.created_at,
+      updatedAt: report.updated_at,
+      qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=fakenik-report-${report.id}`,
+      pdfUrl: `https://fakenik.gov.in/reports/${report.id}/verification`,
+      verificationCode: verificationCode,
+      mediaUrl: report.media_url,
+      sourceUrl: report.source_url,
     };
 
-    return new Response(JSON.stringify(mockPdfResponse), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
+    // Store the verification code in the database for later verification
+    // This would be implemented in a real application
+    // await storeVerificationCode(report.id, verificationCode);
+
+    // Log the generated report for debugging
+    console.log("Generated report:", JSON.stringify(reportData, null, 2));
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: "PDF generated successfully",
+        data: reportData,
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      }
+    );
   } catch (error) {
     console.error("Error in generate-report-pdf function:", error);
     
@@ -87,3 +105,26 @@ serve(async (req) => {
     );
   }
 });
+
+/**
+ * Generates a complex verification code combining letters and numbers
+ * @returns {string} A verification code
+ */
+function generateVerificationCode(): string {
+  const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed confusing characters like O, 0, 1, I
+  let code = '';
+  
+  // Generate 4 blocks of 4 characters separated by dashes
+  for (let block = 0; block < 4; block++) {
+    for (let i = 0; i < 4; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      code += characters[randomIndex];
+    }
+    
+    if (block < 3) {
+      code += '-';
+    }
+  }
+  
+  return code;
+}

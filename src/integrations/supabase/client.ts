@@ -14,5 +14,40 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-  }
+    detectSessionInUrl: true,
+    flowType: 'pkce'
+  },
 });
+
+// Helper function to get the current user's access token for edge function calls
+export const getAccessToken = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.access_token;
+};
+
+// Helper function to call edge functions with proper authentication
+export const callEdgeFunction = async (
+  functionName: string, 
+  body: any
+) => {
+  const accessToken = await getAccessToken();
+  
+  const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/${functionName}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(body),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(`Error calling function ${functionName}: ${errorData.error || response.statusText}`);
+  }
+
+  return await response.json();
+};
