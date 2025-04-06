@@ -59,7 +59,8 @@ export const generateReportPDF = async (reportId: string) => {
     return {
       success: true,
       data: result.data,
-      message: result.message
+      message: result.message,
+      verificationCode: result.verificationCode // Added verification code
     };
   } catch (error: any) {
     console.error('Error generating PDF:', error);
@@ -88,6 +89,7 @@ export const verifyReport = async (reportId: string, verificationCode: string) =
     console.error('Error verifying report:', error);
     return {
       success: false,
+      verified: false,
       message: error.message || 'Failed to verify report'
     };
   }

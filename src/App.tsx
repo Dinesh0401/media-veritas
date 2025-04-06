@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ReportDetails from "./pages/ReportDetails";
+import VerifyReport from "./pages/VerifyReport";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
                   <ReportDetails />
                 </ProtectedRoute>
               } />
+              <Route path="/verify" element={<VerifyReport />} />
               <Route path="/forum" element={<Forum />} />
               <Route path="/about" element={<About />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

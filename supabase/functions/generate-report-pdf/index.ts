@@ -7,6 +7,32 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper function to generate a verification code
+function generateVerificationCode(reportId: string): string {
+  // Generate a code based on report ID to make it deterministic
+  // In a real app, this would be random and stored in the database
+  const reportIdChars = reportId.split('');
+  const reportIdSum = reportIdChars.reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  
+  // Generate a deterministic but seemingly random code
+  const validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  
+  // First character is special - used for verification logic
+  const validFirstChars = ["A", "B", "C", "D", "E", "F"];
+  const firstCharIndex = reportIdSum % validFirstChars.length;
+  code += validFirstChars[firstCharIndex];
+  
+  // Generate remaining 15 characters
+  for (let i = 1; i < 16; i++) {
+    const charIndex = (reportIdSum * (i + 1)) % validChars.length;
+    code += validChars[charIndex];
+  }
+  
+  // Format as XXXX-XXXX-XXXX-XXXX
+  return code.match(/.{1,4}/g)?.join('-') || code;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -16,79 +42,58 @@ serve(async (req) => {
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
     const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
-    // Get the authorization header from the request
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing Authorization header");
-    }
-
-    // Create a Supabase client with the Auth header
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: authHeader } },
-    });
-
     // Get the request body
     const body = await req.json();
     const { reportId } = body;
-
+    
     if (!reportId) {
       throw new Error("Report ID is required");
     }
-
-    // Get the report from the database
-    const { data: report, error } = await supabaseClient
+    
+    console.log(`Generating PDF for report ${reportId}`);
+    
+    // Get the report from the database to confirm it exists
+    const { data: report, error } = await supabase
       .from("reports")
-      .select("*, users(full_name)")
+      .select("id, title, status, confidence_score, description, content_type")
       .eq("id", reportId)
       .single();
-
+    
     if (error) {
+      console.error("Database error:", error);
       throw error;
     }
-
+    
     if (!report) {
       throw new Error("Report not found");
     }
 
-    // Generate a unique verification code - more complex than the previous one
-    const verificationCode = generateVerificationCode();
+    // Generate a verification code for this report
+    const verificationCode = generateVerificationCode(reportId);
     
-    // Store the verification code in the database for later verification
-    // In a real implementation, this would be stored in a dedicated table
-    // For now, let's log it for debugging purposes
     console.log(`Generated verification code ${verificationCode} for report ${reportId}`);
     
-    // In a real implementation, we would generate the actual PDF here
-    // For now, we're creating a more detailed mock response
-    const reportData = {
-      reportId: report.id,
-      title: report.title,
-      userName: report.users?.full_name || "Anonymous",
-      confidenceScore: report.confidence_score,
-      status: report.status,
-      description: report.description,
-      contentType: report.content_type,
-      createdAt: report.created_at,
-      updatedAt: report.updated_at,
-      qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=fakenik-report-${report.id}`,
-      pdfUrl: `https://fakenik.gov.in/reports/${report.id}/verification`,
-      verificationCode: verificationCode,
-      mediaUrl: report.media_url,
-      sourceUrl: report.source_url,
-      generatedAt: new Date().toISOString(),
-      issuingAuthority: "FakeniK Verification Authority",
-      officialStamp: true,
-    };
-
-    // Log the generated report for debugging
-    console.log("Generated report PDF data:", JSON.stringify(reportData, null, 2));
-
+    // In a real implementation, we would:
+    // 1. Generate an actual PDF document
+    // 2. Store the document in storage
+    // 3. Save the verification code in the database
+    // 4. Create a downloadable URL for the PDF
+    
+    // For now, we'll just return a mock success response
     return new Response(
       JSON.stringify({
         success: true,
-        message: "PDF generated successfully",
-        data: reportData,
+        message: "Report PDF generated successfully",
+        data: {
+          reportId: reportId,
+          title: report.title,
+          generatedAt: new Date().toISOString(),
+          // In a real app, this would be a URL to the PDF
+          pdfUrl: `https://example.com/reports/${reportId}.pdf`, 
+        },
+        verificationCode: verificationCode
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -109,26 +114,3 @@ serve(async (req) => {
     );
   }
 });
-
-/**
- * Generates a complex verification code combining letters and numbers
- * @returns {string} A verification code
- */
-function generateVerificationCode(): string {
-  const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed confusing characters like O, 0, 1, I
-  let code = '';
-  
-  // Generate 4 blocks of 4 characters separated by dashes
-  for (let block = 0; block < 4; block++) {
-    for (let i = 0; i < 4; i++) {
-      const randomIndex = Math.floor(Math.random() * characters.length);
-      code += characters[randomIndex];
-    }
-    
-    if (block < 3) {
-      code += '-';
-    }
-  }
-  
-  return code;
-}
