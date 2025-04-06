@@ -29,18 +29,19 @@ serve(async (req) => {
     if (!verificationCode) {
       throw new Error("Verification code is required");
     }
-
-    // In a real implementation, we would verify the code against what's stored in the database
-    // For now, we'll simulate this process with a mock verification
     
+    // Log the verification attempt for debugging
+    console.log(`Verifying report ${reportId} with code ${verificationCode}`);
+
     // Get the report from the database to confirm it exists
     const { data: report, error } = await supabase
       .from("reports")
-      .select("id, title, status, confidence_score")
+      .select("id, title, status, confidence_score, description, content_type, created_at, user_id")
       .eq("id", reportId)
       .single();
 
     if (error) {
+      console.error("Database error:", error);
       throw error;
     }
 
@@ -48,17 +49,39 @@ serve(async (req) => {
       throw new Error("Report not found");
     }
 
+    // In a production system, we would query a verification_codes table
+    // to check if the code matches and hasn't expired
+    // For demo purposes, we'll use a simple validation
+    
     // Mock verification logic - in a real app, compare with stored codes
     // For now, we'll consider codes that start with certain letters as valid for demo purposes
     const firstChar = verificationCode.charAt(0);
     const isValid = ['A', 'B', 'C', 'D', 'E', 'F'].includes(firstChar);
+    
+    // Check if the code format is valid (4 blocks of 4 characters separated by dashes)
+    const codeFormatRegex = /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+    const isFormatValid = codeFormatRegex.test(verificationCode);
+    
+    const verified = isValid && isFormatValid;
+    
+    // Log the verification result
+    console.log(`Verification result for report ${reportId}: ${verified ? 'Valid' : 'Invalid'}`);
+
+    // If verification is successful and this is a real app, we might update the report status
+    if (verified) {
+      // In a real app: Update report verification status
+      console.log(`Report ${reportId} successfully verified`);
+    }
 
     return new Response(
       JSON.stringify({
         success: true,
-        verified: isValid,
-        report: isValid ? report : null,
-        message: isValid 
+        verified: verified,
+        report: verified ? {
+          ...report,
+          verifiedAt: new Date().toISOString()
+        } : null,
+        message: verified 
           ? "Report verification successful" 
           : "Invalid verification code",
       }),

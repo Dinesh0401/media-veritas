@@ -54,6 +54,11 @@ serve(async (req) => {
     // Generate a unique verification code - more complex than the previous one
     const verificationCode = generateVerificationCode();
     
+    // Store the verification code in the database for later verification
+    // In a real implementation, this would be stored in a dedicated table
+    // For now, let's log it for debugging purposes
+    console.log(`Generated verification code ${verificationCode} for report ${reportId}`);
+    
     // In a real implementation, we would generate the actual PDF here
     // For now, we're creating a more detailed mock response
     const reportData = {
@@ -71,14 +76,13 @@ serve(async (req) => {
       verificationCode: verificationCode,
       mediaUrl: report.media_url,
       sourceUrl: report.source_url,
+      generatedAt: new Date().toISOString(),
+      issuingAuthority: "FakeniK Verification Authority",
+      officialStamp: true,
     };
 
-    // Store the verification code in the database for later verification
-    // This would be implemented in a real application
-    // await storeVerificationCode(report.id, verificationCode);
-
     // Log the generated report for debugging
-    console.log("Generated report:", JSON.stringify(reportData, null, 2));
+    console.log("Generated report PDF data:", JSON.stringify(reportData, null, 2));
 
     return new Response(
       JSON.stringify({

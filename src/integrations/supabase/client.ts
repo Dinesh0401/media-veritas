@@ -51,3 +51,44 @@ export const callEdgeFunction = async (
 
   return await response.json();
 };
+
+// Enhanced version of generateReportPDF function
+export const generateReportPDF = async (reportId: string) => {
+  try {
+    const result = await callEdgeFunction('generate-report-pdf', { reportId });
+    return {
+      success: true,
+      data: result.data,
+      message: result.message
+    };
+  } catch (error: any) {
+    console.error('Error generating PDF:', error);
+    return {
+      success: false,
+      message: error.message || 'Failed to generate report PDF'
+    };
+  }
+};
+
+// Function to verify a report using a verification code
+export const verifyReport = async (reportId: string, verificationCode: string) => {
+  try {
+    const result = await callEdgeFunction('verify-report', { 
+      reportId, 
+      verificationCode 
+    });
+    
+    return {
+      success: true,
+      verified: result.verified,
+      report: result.report,
+      message: result.message
+    };
+  } catch (error: any) {
+    console.error('Error verifying report:', error);
+    return {
+      success: false,
+      message: error.message || 'Failed to verify report'
+    };
+  }
+};
