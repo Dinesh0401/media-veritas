@@ -1,9 +1,9 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, generateReportPDF } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { 
   Card, 
   CardContent, 
@@ -30,6 +30,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { CustomProgress } from "@/components/ui/custom-progress";
 import ReportStats from "@/components/ReportStats";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export default function ReportDetails() {
   const { id } = useParams<{ id: string }>();
@@ -37,8 +42,9 @@ export default function ReportDetails() {
   const [isLoading, setIsLoading] = useState(true);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const [pdfGenerated, setPdfGenerated] = useState(false);
   const { user } = useAuth();
-  const { toast } = useToast();
+  const { toast: toastNotification } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -60,7 +66,7 @@ export default function ReportDetails() {
         setReport(data);
       } catch (error: any) {
         console.error('Error fetching report details:', error);
-        toast({
+        toastNotification({
           title: "Error loading report",
           description: error.message,
           variant: "destructive",
@@ -71,20 +77,62 @@ export default function ReportDetails() {
     }
 
     fetchReportDetails();
-  }, [id, toast]);
+  }, [id, toastNotification]);
 
-  const handleGeneratePdf = () => {
-    // In a real implementation, this would connect to a backend service to generate a PDF
-    setIsGeneratingPdf(true);
+  const handleGeneratePdf = async () => {
+    if (!id) return;
     
-    // Mock PDF generation
-    setTimeout(() => {
-      setIsGeneratingPdf(false);
-      toast({
-        title: "PDF Generated",
+    try {
+      setIsGeneratingPdf(true);
+      
+      // Fetch the binary PDF directly from the edge function
+      const response = await fetch(
+        `${supabase.supabaseUrl}/functions/v1/generate-report-pdf`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+          },
+          body: JSON.stringify({ reportId: id }),
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+      
+      // Get the PDF blob from the response
+      const pdfBlob = await response.blob();
+      
+      // Create a URL for the blob
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      
+      // Create a link element and trigger download
+      const link = document.createElement('a');
+      link.href = pdfUrl;
+      link.download = `fakenik-report-${id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the URL object
+      setTimeout(() => URL.revokeObjectURL(pdfUrl), 100);
+      
+      // Show success notification
+      setPdfGenerated(true);
+      toast.success("PDF Statement Generated", {
         description: "Your report statement has been generated with a unique QR code.",
       });
-    }, 2000);
+      
+    } catch (error: any) {
+      console.error('Error generating PDF:', error);
+      toast.error("PDF Generation Failed", {
+        description: error.message || "An error occurred while generating the PDF",
+      });
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
   const getStatusDetails = (status: string) => {
@@ -280,23 +328,37 @@ export default function ReportDetails() {
                 <CardTitle>Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button 
-                  className="w-full"
-                  onClick={handleGeneratePdf}
-                  disabled={isGeneratingPdf}
-                >
-                  {isGeneratingPdf ? (
-                    <>
-                      <Loader className="mr-2 h-4 w-4 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="mr-2 h-4 w-4" />
-                      Generate Statement
-                    </>
-                  )}
-                </Button>
+                <Popover open={pdfGenerated} onOpenChange={setPdfGenerated}>
+                  <PopoverTrigger asChild>
+                    <Button 
+                      className="w-full"
+                      onClick={handleGeneratePdf}
+                      disabled={isGeneratingPdf}
+                    >
+                      {isGeneratingPdf ? (
+                        <>
+                          <Loader className="mr-2 h-4 w-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="mr-2 h-4 w-4" />
+                          Generate Statement
+                        </>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80">
+                    <div className="grid gap-4">
+                      <div className="space-y-2">
+                        <h4 className="font-medium leading-none">PDF Generated</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Your report statement has been generated with a unique QR code.
+                        </p>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
                 <Button variant="outline" className="w-full">
                   <Share2 className="mr-2 h-4 w-4" />
                   Share Report
