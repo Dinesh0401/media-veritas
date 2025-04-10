@@ -139,6 +139,7 @@ export type Database = {
           description: string
           id: string
           media_url: string | null
+          metadata: Json | null
           source_url: string | null
           status: string
           title: string
@@ -152,6 +153,7 @@ export type Database = {
           description: string
           id?: string
           media_url?: string | null
+          metadata?: Json | null
           source_url?: string | null
           status?: string
           title: string
@@ -165,6 +167,7 @@ export type Database = {
           description?: string
           id?: string
           media_url?: string | null
+          metadata?: Json | null
           source_url?: string | null
           status?: string
           title?: string
