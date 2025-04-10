@@ -7,7 +7,20 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
-import { Shield, Check, AlertTriangle, BarChart3, Search, Lock, Users } from "lucide-react";
+import { 
+  Shield, 
+  Check, 
+  AlertTriangle, 
+  BarChart3, 
+  Search, 
+  Lock, 
+  Users, 
+  Fingerprint, 
+  Database, 
+  Layers, 
+  Network, 
+  LineChart 
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function About() {
@@ -19,10 +32,11 @@ export default function About() {
           <div className="inline-flex items-center justify-center p-3 bg-fakenik-blue/10 rounded-full mb-4">
             <Shield className="h-8 w-8 text-fakenik-blue" />
           </div>
-          <h1 className="text-4xl font-bold mb-4">Our Mission</h1>
+          <h1 className="text-4xl font-bold mb-4">Advanced Deepfake Detection Platform</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            FakeniX is dedicated to combating the spread of deepfakes by empowering individuals 
-            and organizations with tools to detect, report, and track manipulated media.
+            FakeniX combines breakthrough technologies to detect, track, and mitigate deepfake media
+            across platforms, offering proprietary verification methods, attribution tracking, and
+            comprehensive protection.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/report">
@@ -38,54 +52,114 @@ export default function About() {
           </div>
         </div>
         
-        {/* Key Features Section */}
+        {/* Core Innovations Section */}
         <div className="mb-16">
-          <h2 className="text-3xl font-bold mb-10 text-center">How We Combat Deepfakes</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <h2 className="text-3xl font-bold mb-10 text-center">Core Innovations</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <Card className="bg-card border-border hover:shadow-md transition-shadow">
-              <CardHeader className="text-center pb-2">
-                <div className="mx-auto bg-fakenik-blue/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+              <CardHeader className="pb-2">
+                <div className="bg-fakenik-blue/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                  <Fingerprint className="h-6 w-6 text-fakenik-blue" />
+                </div>
+                <CardTitle>Multi-Modal Trust Verification</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-2">
+                <p className="text-muted-foreground">
+                  Proprietary system combining digital fingerprinting, blockchain-based provenance tracking, 
+                  temporal consistency analysis, and our patent-pending Trust Score Generator.
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border-border hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
+                <div className="bg-fakenik-teal/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                  <Database className="h-6 w-6 text-fakenik-teal" />
+                </div>
+                <CardTitle>Neural Watermarking Defense</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-2">
+                <p className="text-muted-foreground">
+                  Our invisible neural watermarking technology embeds imperceptible signatures that survive 
+                  compression and manipulation, with specialized extraction algorithms and countermeasure generation.
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card border-border hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
+                <div className="bg-fakenik-blue/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
                   <Search className="h-6 w-6 text-fakenik-blue" />
                 </div>
-                <CardTitle>Advanced Detection</CardTitle>
+                <CardTitle>Behavioral Anomaly Detection</CardTitle>
               </CardHeader>
-              <CardContent className="text-center pt-2">
+              <CardContent className="pt-2">
                 <p className="text-muted-foreground">
-                  Our AI-powered system analyzes images and videos to identify signs of 
-                  manipulation with high accuracy, helping users verify content authenticity.
+                  Advanced analysis of micro-expressions, physiological consistency verification, and 
+                  environmental physics validation to detect unnatural elements in manipulated media.
                 </p>
               </CardContent>
             </Card>
             
             <Card className="bg-card border-border hover:shadow-md transition-shadow">
-              <CardHeader className="text-center pb-2">
-                <div className="mx-auto bg-fakenik-teal/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-                  <AlertTriangle className="h-6 w-6 text-fakenik-teal" />
+              <CardHeader className="pb-2">
+                <div className="bg-fakenik-teal/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                  <Layers className="h-6 w-6 text-fakenik-teal" />
                 </div>
-                <CardTitle>Reporting System</CardTitle>
+                <CardTitle>Adaptive Deepfake Resilience</CardTitle>
               </CardHeader>
-              <CardContent className="text-center pt-2">
+              <CardContent className="pt-2">
                 <p className="text-muted-foreground">
-                  Submit formal complaints against deepfake content through our streamlined reporting 
-                  process that ensures appropriate action is taken.
+                  Self-improving system with adversarial training networks, distributed detection consensus, 
+                  and temporal detection memory to build immunity against evolving deepfake techniques.
                 </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-card border-border hover:shadow-md transition-shadow">
-              <CardHeader className="text-center pb-2">
-                <div className="mx-auto bg-fakenik-blue/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-                  <BarChart3 className="h-6 w-6 text-fakenik-blue" />
+            <Card className="bg-card border-border hover:shadow-md transition-shadow col-span-1 md:col-span-2">
+              <CardHeader className="pb-2">
+                <div className="bg-fakenik-blue/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                  <Network className="h-6 w-6 text-fakenik-blue" />
                 </div>
-                <CardTitle>Transparent Tracking</CardTitle>
+                <CardTitle>Cross-Platform Tracking & Attribution</CardTitle>
               </CardHeader>
-              <CardContent className="text-center pt-2">
+              <CardContent className="pt-2">
                 <p className="text-muted-foreground">
-                  Monitor the status of reported content with our real-time tracking system, 
-                  providing transparency throughout the review process.
+                  Cutting-edge technology for manipulation signature identification, propagation network mapping, 
+                  and statistical attribution confidence scoring to determine deepfake origins and track spread.
                 </p>
               </CardContent>
             </Card>
+          </div>
+        </div>
+        
+        {/* User Journey Section */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold mb-10 text-center">User Journey</h2>
+          <div className="space-y-8">
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="md:w-1/3">
+                <h3 className="text-xl font-semibold mb-2">Content Protection</h3>
+                <p className="text-muted-foreground mb-4">
+                  Content creators can register original works to receive digital fingerprints, 
+                  apply neural watermarking protection, and obtain blockchain-registered authenticity certificates.
+                </p>
+              </div>
+              <div className="md:w-1/3">
+                <h3 className="text-xl font-semibold mb-2">Deepfake Detection</h3>
+                <p className="text-muted-foreground mb-4">
+                  Upload suspicious media for multi-layer analysis using our five proprietary technologies, 
+                  receive detailed reports with visualization of detected anomalies, and submit structured complaints.
+                </p>
+              </div>
+              <div className="md:w-1/3">
+                <h3 className="text-xl font-semibold mb-2">Attribution & Intelligence</h3>
+                <p className="text-muted-foreground">
+                  Access personal media monitoring, global threat intelligence, deepfake source analysis, 
+                  and interact with spread visualization showing content propagation across platforms.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
         
@@ -93,19 +167,21 @@ export default function About() {
         <div className="mb-16">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold mb-4">About FakeniX</h2>
+              <h2 className="text-3xl font-bold mb-4">Technical Excellence</h2>
               <p className="text-muted-foreground mb-4">
-                FakeniX was established in 2023 by a team of technologists, cybersecurity experts, 
-                and digital rights advocates concerned about the rising threat of deepfake technology.
+                FakeniX is built with cutting-edge technologies including Python/Django REST Framework
+                and React.js, with a distributed systems architecture designed for high performance 
+                and scalability.
               </p>
               <p className="text-muted-foreground mb-4">
-                Our platform combines cutting-edge AI detection methods with a community-driven 
-                approach to create a comprehensive solution for identifying and addressing 
-                manipulated media across the internet.
+                Our AI and machine learning pipeline combines ensemble models with proprietary 
+                feature extraction layers for behavioral anomaly detection, supported by distributed
+                training and continual learning capabilities.
               </p>
               <p className="text-muted-foreground">
-                We believe in creating a more trustworthy digital environment where people can 
-                confidently distinguish between authentic and manipulated content.
+                We maintain strict performance standards with &lt;3s response times for standard analysis,
+                &gt;98% detection accuracy, and comprehensive security measures including SOC2 compliance
+                and GDPR-ready data handling.
               </p>
             </div>
             <div className="bg-gradient-to-br from-fakenik-blue/10 to-fakenik-teal/10 rounded-lg p-8 flex items-center justify-center">
@@ -133,8 +209,8 @@ export default function About() {
               <div>
                 <h3 className="text-xl font-semibold mb-2">Accuracy</h3>
                 <p className="text-muted-foreground">
-                  We prioritize the accuracy of our detection systems to ensure reliable results
-                  and avoid false positives.
+                  We achieve >98% detection rate with <0.5% false positives through our 
+                  multi-layered proprietary technologies.
                 </p>
               </div>
             </div>
@@ -147,8 +223,8 @@ export default function About() {
               <div>
                 <h3 className="text-xl font-semibold mb-2">Community</h3>
                 <p className="text-muted-foreground">
-                  We foster a collaborative environment where users can share knowledge and
-                  work together to combat deepfakes.
+                  We foster research collaboration and threat intelligence sharing through
+                  our Community Defense Forum.
                 </p>
               </div>
             </div>
@@ -161,22 +237,22 @@ export default function About() {
               <div>
                 <h3 className="text-xl font-semibold mb-2">Privacy</h3>
                 <p className="text-muted-foreground">
-                  We respect user privacy and maintain secure handling of all uploaded content
-                  and personal information.
+                  We implement zero-knowledge verification options and encrypted processing
+                  to preserve content confidentiality.
                 </p>
               </div>
             </div>
             <div className="flex gap-4">
               <div className="flex-shrink-0">
                 <div className="bg-fakenik-teal/10 w-12 h-12 rounded-full flex items-center justify-center">
-                  <Shield className="h-6 w-6 text-fakenik-teal" />
+                  <LineChart className="h-6 w-6 text-fakenik-teal" />
                 </div>
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">Protection</h3>
+                <h3 className="text-xl font-semibold mb-2">Innovation</h3>
                 <p className="text-muted-foreground">
-                  We are committed to protecting individuals from the harmful impacts of 
-                  deepfakes and digital manipulation.
+                  We continuously develop patentable technologies and improve our systems
+                  to combat evolving deepfake threats.
                 </p>
               </div>
             </div>
@@ -187,8 +263,8 @@ export default function About() {
         <div className="bg-gradient-to-br from-fakenik-blue/10 to-fakenik-teal/10 rounded-lg p-8 text-center">
           <h2 className="text-2xl font-bold mb-4">Join the Fight Against Deepfakes</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
-            Whether you're concerned about deepfakes, want to report manipulated content, 
-            or wish to contribute to our community, FakeniX provides the tools and resources you need.
+            Whether you're a content creator seeking protection, a platform concerned about manipulated media,
+            or a researcher interested in deepfake detection, FakeniX provides the advanced tools and resources you need.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/register">
