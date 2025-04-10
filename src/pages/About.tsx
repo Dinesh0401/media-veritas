@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { 
   Card, 
@@ -44,9 +43,9 @@ export default function About() {
                 Report Deepfake
               </Button>
             </Link>
-            <Link to="/forum">
+            <Link to="/verification-technology">
               <Button variant="outline" size="lg">
-                Join Community
+                Explore Verification Technology
               </Button>
             </Link>
           </div>
@@ -257,6 +256,47 @@ export default function About() {
               </div>
             </div>
           </div>
+        </div>
+        
+        {/* New Verification Technology Highlight */}
+        <div className="mb-16">
+          <Card className="bg-gradient-to-br from-fakenik-blue/5 to-fakenik-teal/5">
+            <CardHeader>
+              <CardTitle className="text-2xl">Immutable Evidence Ledger</CardTitle>
+              <CardDescription>
+                Our patentable blockchain-based verification system
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col md:flex-row gap-8 items-center">
+                <div className="md:w-2/3">
+                  <p className="text-muted-foreground mb-4">
+                    FakeniX now features our revolutionary Immutable Evidence Ledger and Verifiable Watermarking 
+                    system, combining blockchain technology with advanced watermarking to create legally admissible 
+                    media provenance solutions.
+                  </p>
+                  <div className="flex flex-wrap gap-4 mt-4">
+                    <Link to="/verification-technology">
+                      <Button>
+                        Learn More
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+                <div className="md:w-1/3 bg-muted p-6 rounded-lg">
+                  <div className="flex flex-col items-center text-center gap-4">
+                    <Shield className="h-12 w-12 text-fakenik-blue" />
+                    <div>
+                      <h4 className="font-medium mb-1">Blockchain-Powered</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Cryptographically secure verification for legal and investigative use
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
         
         {/* Call to Action */}
