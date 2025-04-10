@@ -209,7 +209,7 @@ export default function About() {
               <div>
                 <h3 className="text-xl font-semibold mb-2">Accuracy</h3>
                 <p className="text-muted-foreground">
-                  We achieve >98% detection rate with <0.5% false positives through our 
+                  We achieve &gt;98% detection rate with &lt;0.5% false positives through our 
                   multi-layered proprietary technologies.
                 </p>
               </div>
@@ -224,7 +224,7 @@ export default function About() {
                 <h3 className="text-xl font-semibold mb-2">Community</h3>
                 <p className="text-muted-foreground">
                   We foster research collaboration and threat intelligence sharing through
-                  our Community Defense Forum.
+                  our Community Defense forum.
                 </p>
               </div>
             </div>
