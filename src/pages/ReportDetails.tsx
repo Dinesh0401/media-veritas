@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase, generateReportPDF } from "@/integrations/supabase/client";
@@ -35,6 +36,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
+// Import the SUPABASE_URL constant
+import { SUPABASE_URL } from "@/integrations/supabase/client";
 
 export default function ReportDetails() {
   const { id } = useParams<{ id: string }>();
@@ -86,8 +90,9 @@ export default function ReportDetails() {
       setIsGeneratingPdf(true);
       
       // Fetch the binary PDF directly from the edge function
+      // Using SUPABASE_URL instead of supabase.supabaseUrl
       const response = await fetch(
-        `${supabase.supabaseUrl}/functions/v1/generate-report-pdf`,
+        `${SUPABASE_URL}/functions/v1/generate-report-pdf`,
         {
           method: 'POST',
           headers: {
