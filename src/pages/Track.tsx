@@ -26,17 +26,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Search, FileText, Clock, CheckCircle, AlertTriangle, Loader } from "lucide-react";
+import { AlertCircle, Search, FileText, Clock, CheckCircle, AlertTriangle, Loader, Package, Truck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import TrackVisualization from "@/components/TrackVisualization";
+import ReportTrackingModal from "@/components/ReportTrackingModal";
 
 export default function Track() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
   const [reports, setReports] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [trackingId, setTrackingId] = useState("");
+  const [showTrackingModal, setShowTrackingModal] = useState(false);
+  const [trackingReport, setTrackingReport] = useState<any>(null);
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -127,6 +131,71 @@ export default function Track() {
   // Handle viewing a report
   const handleViewReport = (reportId: string) => {
     navigate(`/report-details/${reportId}`);
+  };
+
+  // Handle tracking a report by ID
+  const handleTrackReport = () => {
+    if (!trackingId) {
+      toast({
+        title: "Tracking ID required",
+        description: "Please enter a report ID to track",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Find report in current reports or fetch from database
+    const report = reports.find(r => r.id.substring(0, 8).toUpperCase() === trackingId.toUpperCase());
+    
+    if (report) {
+      setTrackingReport(report);
+      setShowTrackingModal(true);
+    } else {
+      // If not found in current reports, try to fetch it from the database
+      fetchReportByShortId(trackingId);
+    }
+  };
+
+  // Fetch a report by its short ID
+  const fetchReportByShortId = async (shortId: string) => {
+    try {
+      setIsLoading(true);
+      
+      // Query all reports and filter client-side by the short ID
+      // This is a workaround since we can't directly query by substring in Supabase
+      const { data, error } = await supabase
+        .from('reports')
+        .select('*');
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Find the report with matching short ID
+      const matchingReport = data?.find(
+        report => report.id.substring(0, 8).toUpperCase() === shortId.toUpperCase()
+      );
+      
+      if (matchingReport) {
+        setTrackingReport(matchingReport);
+        setShowTrackingModal(true);
+      } else {
+        toast({
+          title: "Report not found",
+          description: `No report found with tracking ID: ${shortId}`,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error('Error fetching report by ID:', error);
+      toast({
+        title: "Error tracking report",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isLoading) {
@@ -312,7 +381,10 @@ export default function Track() {
         <div className="mt-8">
           <Card>
             <CardHeader>
-              <CardTitle>Looking for a specific report?</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5" /> 
+                Track a Specific Report
+              </CardTitle>
               <CardDescription>
                 If you know the report ID, you can quickly check its status below.
               </CardDescription>
@@ -322,13 +394,26 @@ export default function Track() {
                 <Input
                   placeholder="Enter report ID (e.g., 5F6A8B23)"
                   className="flex-1"
+                  value={trackingId}
+                  onChange={(e) => setTrackingId(e.target.value)}
                 />
-                <Button>Track Report</Button>
+                <Button onClick={handleTrackReport} className="bg-fakenik-blue hover:bg-fakenik-blue/90">
+                  <Truck className="h-4 w-4 mr-2" /> Track Report
+                </Button>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Tracking Modal */}
+      {trackingReport && (
+        <ReportTrackingModal 
+          isOpen={showTrackingModal}
+          onClose={() => setShowTrackingModal(false)}
+          report={trackingReport}
+        />
+      )}
     </div>
   );
 }
