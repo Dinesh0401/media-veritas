@@ -22,6 +22,11 @@ export function ReportActions({ reportId, onToggleStats, showStats }: ReportActi
     
     try {
       setIsGeneratingPdf(true);
+      toast.info("Generating PDF...", {
+        description: "Please wait while we prepare your report statement.",
+      });
+      
+      console.log(`Generating PDF for report ${reportId}`);
       
       // Fetch the binary PDF directly from the edge function
       const response = await fetch(
@@ -37,7 +42,8 @@ export function ReportActions({ reportId, onToggleStats, showStats }: ReportActi
       );
       
       if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Error: ${response.statusText}`);
       }
       
       // Get the PDF blob from the response
