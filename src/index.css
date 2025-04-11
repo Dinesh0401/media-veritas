@@ -14,16 +14,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 199 89% 48%;
+    --primary: 225 82% 56%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 172 61% 40%;
+    --secondary: 262 83% 65%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
 
-    --accent: 210 40% 96%;
+    --accent: 262 83% 92%;
     --accent-foreground: 222 47% 11%;
 
     --destructive: 0 84% 60%;
@@ -33,7 +33,7 @@
     --input: 214 32% 91%;
     --ring: 222 84% 5%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5% 26%;
@@ -55,16 +55,16 @@
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 199 89% 48%;
+    --primary: 225 82% 56%;
     --primary-foreground: 222 47% 11%;
 
-    --secondary: 172 61% 40%;
+    --secondary: 262 83% 65%;
     --secondary-foreground: 222 47% 11%;
 
     --muted: 217 33% 18%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 217 33% 18%;
+    --accent: 262 83% 25%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 63% 31%;
@@ -90,9 +90,29 @@
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+  
+  h1 {
+    @apply text-4xl md:text-5xl;
+  }
+  
+  h2 {
+    @apply text-3xl md:text-4xl;
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl;
   }
 }
 
@@ -100,4 +120,37 @@
   .shimmer {
     @apply bg-gradient-to-r from-transparent via-white/20 to-transparent bg-[length:500px_100%] animate-shimmer;
   }
+  
+  .card-highlight {
+    @apply border border-transparent hover:border-primary/20 transition-all duration-300 hover:shadow-md hover:shadow-primary/5;
+  }
+  
+  .btn-gradient {
+    @apply bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-opacity;
+  }
+  
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20;
+  }
+  
+  .hero-section {
+    @apply bg-hero-gradient relative overflow-hidden;
+  }
+  
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.float-animation {
+  animation: float 5s ease-in-out infinite;
 }

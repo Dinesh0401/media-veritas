@@ -69,7 +69,11 @@ export default {
           dark: '#1A1F2C',
           light: '#F8FAFC',
           gray: '#94A3B8',
-          danger: '#EF4444'
+          danger: '#EF4444',
+          purple: '#8B5CF6',
+          indigo: '#4F46E5',
+          pink: '#EC4899',
+          orange: '#F97316'
         }
 			},
 			borderRadius: {
@@ -97,13 +101,27 @@ export default {
         shimmer: {
           '0%': { backgroundPosition: '-500px 0' },
           '100%': { backgroundPosition: '500px 0' }
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' }
+        },
+        bounce: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-5px)' }
         }
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-        'shimmer': 'shimmer 2s infinite linear'
-			}
+        'shimmer': 'shimmer 2s infinite linear',
+        'fadeIn': 'fadeIn 0.5s ease-in',
+        'bounce': 'bounce 1s ease-in-out infinite'
+			},
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'hero-gradient': 'linear-gradient(180deg, rgba(59,130,246,0.15) 0%, rgba(37,99,235,0.05) 100%)',
+      }
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
