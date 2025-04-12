@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -96,19 +95,15 @@ export default function DetectionDemo() {
         setIsAnalyzing(false);
       }, 500);
       
-      // If user is logged in, save the result to their history
+      // Remove the attempt to save to a non-existent database table
+      // Just log that we would save this in a real implementation
       if (user) {
-        try {
-          await supabase.from("detection_history").insert({
-            user_id: user.id,
-            result: result,
-            image_name: file.name,
-            is_fake: isFake,
-            confidence_score: confidenceScore,
-          });
-        } catch (error) {
-          console.error("Failed to save to history:", error);
-        }
+        console.log("If connected to a database, would save:", {
+          user_id: user.id,
+          is_fake: isFake,
+          confidence_score: confidenceScore,
+          image_name: file.name,
+        });
       }
       
     } catch (error) {
