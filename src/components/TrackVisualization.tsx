@@ -1,17 +1,22 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-
-const mockData = [
-  { category: 'Face Swap', count: 45 },
-  { category: 'Voice Clone', count: 28 },
-  { category: 'Full Body', count: 19 },
-  { category: 'Text Manipulate', count: 14 },
-  { category: 'Scene Edit', count: 9 },
-];
-
+const mockData = [{
+  category: 'Face Swap',
+  count: 45
+}, {
+  category: 'Voice Clone',
+  count: 28
+}, {
+  category: 'Full Body',
+  count: 19
+}, {
+  category: 'Text Manipulate',
+  count: 14
+}, {
+  category: 'Scene Edit',
+  count: 9
+}];
 const COLORS = ["#3B82F6", "#F59E0B", "#EF4444", "#8B5CF6", "#10B981"];
-
 export default function TrackVisualization() {
   const recentTrends = {
     totalReports: 715,
@@ -20,13 +25,11 @@ export default function TrackVisualization() {
     affectedIndividuals: 1273,
     criticalIncidents: 87
   };
-
-  return (
-    <Card className="mt-8">
+  return <Card className="mt-8">
       <CardHeader>
         <CardTitle>Deepfake Activity Overview</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="Use high analytics visualizing tool ">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <div className="bg-muted/30 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">Total Reports</p>
@@ -52,27 +55,21 @@ export default function TrackVisualization() {
 
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={mockData}
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 15,
-              }}
-            >
+            <BarChart data={mockData} margin={{
+            top: 5,
+            right: 30,
+            left: 20,
+            bottom: 15
+          }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="category" tick={{ fontSize: 12 }} />
+              <XAxis dataKey="category" tick={{
+              fontSize: 12
+            }} />
               <YAxis />
-              <Tooltip
-                formatter={(value) => [`${value} reports`, 'Count']}
-                labelFormatter={(label) => `Category: ${label}`}
-              />
+              <Tooltip formatter={value => [`${value} reports`, 'Count']} labelFormatter={label => `Category: ${label}`} />
               <Legend verticalAlign="top" height={36} />
               <Bar dataKey="count" name="Report Count" radius={[4, 4, 0, 0]}>
-                {mockData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
+                {mockData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -86,6 +83,5 @@ export default function TrackVisualization() {
           </p>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 }
