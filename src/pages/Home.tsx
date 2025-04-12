@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Search, Shield, Award, MessageSquare, Heart, Share2, MessageCircle, CheckCircle, AlertTriangle } from "lucide-react";
@@ -9,85 +8,77 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 export default function Home() {
   const [newsItems, setNewsItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
-  const { user } = useAuth();
-
+  const {
+    toast
+  } = useToast();
+  const {
+    user
+  } = useAuth();
   useEffect(() => {
     async function fetchNews() {
       try {
         setIsLoading(true);
-        const { data, error } = await supabase
-          .from('news')
-          .select('*')
-          .order('created_at', { ascending: false });
-
+        const {
+          data,
+          error
+        } = await supabase.from('news').select('*').order('created_at', {
+          ascending: false
+        });
         if (error) {
           throw error;
         }
-
         setNewsItems(data || []);
       } catch (error: any) {
         console.error('Error fetching news:', error);
         toast({
           title: "Error fetching news",
           description: error.message,
-          variant: "destructive",
+          variant: "destructive"
         });
       } finally {
         setIsLoading(false);
       }
     }
-
     fetchNews();
   }, [toast]);
-
   const handleLike = async (newsId: string, currentLikes: number) => {
     if (!user) {
       toast({
         title: "Authentication required",
         description: "Please sign in to like news items",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     try {
-      const { error } = await supabase
-        .from('news')
-        .update({ likes: currentLikes + 1 })
-        .eq('id', newsId);
-
+      const {
+        error
+      } = await supabase.from('news').update({
+        likes: currentLikes + 1
+      }).eq('id', newsId);
       if (error) {
         throw error;
       }
 
       // Update local state
-      setNewsItems(newsItems.map(item => 
-        item.id === newsId ? { ...item, likes: item.likes + 1 } : item
-      ));
+      setNewsItems(newsItems.map(item => item.id === newsId ? {
+        ...item,
+        likes: item.likes + 1
+      } : item));
     } catch (error: any) {
       console.error('Error liking news:', error);
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
-  return (
-    <div className="flex flex-col min-h-screen">
+  return <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="relative py-20 px-4 md:py-32 overflow-hidden bg-gradient-to-br from-background to-accent">
         <div className="container mx-auto">
@@ -114,7 +105,7 @@ export default function Home() {
             </div>
             <div className="hidden md:block relative h-96">
               <div className="absolute inset-0 bg-gradient-to-br from-fakenik-blue/20 to-fakenik-teal/20 rounded-xl"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center bg-[#99d4f0]">
                 <Shield className="h-24 w-24 text-fakenik-blue" />
               </div>
               <div className="absolute top-1/4 right-1/4 h-32 w-32 bg-fakenik-teal/10 rounded-full"></div>
@@ -138,23 +129,16 @@ export default function Home() {
             </Link>
           </div>
 
-          {isLoading ? (
-            <div className="flex justify-center py-12">
+          {isLoading ? <div className="flex justify-center py-12">
               <div className="flex flex-col items-center gap-2">
                 <div className="h-12 w-12 rounded-full border-4 border-fakenik-blue/30 border-t-fakenik-blue animate-spin"></div>
                 <p className="text-muted-foreground">Loading latest news...</p>
               </div>
-            </div>
-          ) : newsItems.length > 0 ? (
-            <div className="space-y-8">
+            </div> : newsItems.length > 0 ? <div className="space-y-8">
               {/* Featured News Item */}
               <div className="relative overflow-hidden rounded-xl">
                 <div className="relative h-[400px] md:h-[500px] bg-black">
-                  <img 
-                    src={newsItems[0]?.image_url || "https://images.unsplash.com/photo-1518770660439-4636190af475"} 
-                    alt={newsItems[0]?.title} 
-                    className="w-full h-full object-cover opacity-70"
-                  />
+                  <img src={newsItems[0]?.image_url || "https://images.unsplash.com/photo-1518770660439-4636190af475"} alt={newsItems[0]?.title} className="w-full h-full object-cover opacity-70" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
                   <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
                     <div className="mb-4">
@@ -171,18 +155,13 @@ export default function Home() {
                         <div>
                           <div className="flex items-center">
                             <span className="text-white text-sm font-medium">{newsItems[0]?.author}</span>
-                            {newsItems[0]?.verified && (
-                              <CheckCircle className="ml-1 h-3.5 w-3.5 text-fakenik-blue fill-white" />
-                            )}
+                            {newsItems[0]?.verified && <CheckCircle className="ml-1 h-3.5 w-3.5 text-fakenik-blue fill-white" />}
                           </div>
                           <span className="text-white/70 text-xs">@{newsItems[0]?.author_handle}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <button 
-                          onClick={() => handleLike(newsItems[0]?.id, newsItems[0]?.likes)}
-                          className="flex items-center gap-1 text-white/80 hover:text-white"
-                        >
+                        <button onClick={() => handleLike(newsItems[0]?.id, newsItems[0]?.likes)} className="flex items-center gap-1 text-white/80 hover:text-white">
                           <Heart className="h-4 w-4" />
                           <span className="text-xs">{newsItems[0]?.likes}</span>
                         </button>
@@ -204,16 +183,11 @@ export default function Home() {
               <div className="mt-8">
                 <Carousel className="w-full">
                   <CarouselContent>
-                    {newsItems.slice(1).map((news) => (
-                      <CarouselItem key={news.id} className="sm:basis-1/2 lg:basis-1/3">
+                    {newsItems.slice(1).map(news => <CarouselItem key={news.id} className="sm:basis-1/2 lg:basis-1/3">
                         <div className="p-1">
                           <Card className="overflow-hidden">
                             <div className="relative h-48">
-                              <img 
-                                src={news.image_url || "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b"} 
-                                alt={news.title} 
-                                className="w-full h-full object-cover"
-                              />
+                              <img src={news.image_url || "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b"} alt={news.title} className="w-full h-full object-cover" />
                               <div className="absolute top-2 right-2">
                                 <Badge className="bg-black/70 text-white hover:bg-black/80">{news.category}</Badge>
                               </div>
@@ -229,16 +203,11 @@ export default function Home() {
                                   </Avatar>
                                   <div className="flex items-center">
                                     <span className="text-xs font-medium">{news.author}</span>
-                                    {news.verified && (
-                                      <CheckCircle className="ml-1 h-3 w-3 text-fakenik-blue fill-background" />
-                                    )}
+                                    {news.verified && <CheckCircle className="ml-1 h-3 w-3 text-fakenik-blue fill-background" />}
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                  <button 
-                                    onClick={() => handleLike(news.id, news.likes)}
-                                    className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
-                                  >
+                                  <button onClick={() => handleLike(news.id, news.likes)} className="flex items-center gap-1 text-muted-foreground hover:text-foreground">
                                     <Heart className="h-3 w-3" />
                                     <span className="text-xs">{news.likes}</span>
                                   </button>
@@ -251,8 +220,7 @@ export default function Home() {
                             </CardContent>
                           </Card>
                         </div>
-                      </CarouselItem>
-                    ))}
+                      </CarouselItem>)}
                   </CarouselContent>
                   <div className="hidden sm:flex">
                     <CarouselPrevious />
@@ -260,15 +228,12 @@ export default function Home() {
                   </div>
                 </Carousel>
               </div>
-            </div>
-          ) : (
-            <div className="flex justify-center py-12">
+            </div> : <div className="flex justify-center py-12">
               <div className="flex flex-col items-center gap-2">
                 <AlertTriangle className="h-12 w-12 text-muted-foreground" />
                 <p className="text-muted-foreground">No news items found</p>
               </div>
-            </div>
-          )}
+            </div>}
         </div>
       </section>
 
@@ -387,6 +352,5 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </div>
-  );
+    </div>;
 }
