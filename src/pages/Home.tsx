@@ -134,7 +134,7 @@ export default function Home() {
               <div className="relative overflow-hidden rounded-xl">
                 <div className="relative h-[400px] md:h-[500px] bg-black">
                   <img src={newsItems[0]?.image_url || "https://images.unsplash.com/photo-1518770660439-4636190af475"} alt={newsItems[0]?.title} className="w-full h-full object-cover opacity-70" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent bg-blue-200"></div>
                   <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
                     <div className="mb-4">
                       <Badge className="bg-red-600 hover:bg-red-700">Breaking News</Badge>
