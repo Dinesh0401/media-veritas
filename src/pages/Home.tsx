@@ -109,8 +109,6 @@ export default function Home() {
               <div className="absolute inset-0 flex items-center justify-center bg-violet-100">
                 <img src="/lovable-uploads/af23f064-609a-4dce-baca-652d175a6cec.png" alt="Digital Security Shield" className="h-64 w-64 object-contain animate-float" />
               </div>
-              
-              
             </div>
           </div>
         </div>
@@ -304,7 +302,7 @@ export default function Home() {
                   Engage in moderated discussions about deepfake incidents, share knowledge, and learn from experts in the field.
                 </p>
                 <Link to="/forum">
-                  <Button variant="outline" className="w-full">Visit Forum</Button>
+                  <Button variant="outline" className="w-full h-10">Visit Forum</Button>
                 </Link>
               </CardContent>
             </Card>
@@ -319,7 +317,7 @@ export default function Home() {
                   Access guides, research, and tools to help you understand and identify manipulated media in your daily life.
                 </p>
                 <Link to="/resources">
-                  <Button variant="outline" className="w-full text-left my-[21px] mx-[2px] px-[9px] py-[14px]">Explore Resources</Button>
+                  <Button variant="outline" className="w-full h-10">Explore Resources</Button>
                 </Link>
               </CardContent>
             </Card>

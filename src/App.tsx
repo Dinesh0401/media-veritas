@@ -10,7 +10,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Report from "./pages/Report";
 import Track from "./pages/Track";
-import Forum from "./pages/forum"; // Updated import path
+import Forum from "./pages/forum";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -19,7 +19,7 @@ import ReportDetails from "./pages/ReportDetails";
 import VerifyReport from "./pages/VerifyReport";
 import VerificationTechnology from "./pages/VerificationTechnology";
 import Profile from "./pages/Profile";
-import DetectionDemo from "./pages/DetectionDemo"; // Import the new page
+import DetectionDemo from "./pages/DetectionDemo";
 
 const queryClient = new QueryClient();
 
@@ -51,7 +51,7 @@ const App = () => (
                 </ProtectedRoute>
               } />
               <Route path="/verify" element={<VerifyReport />} />
-              <Route path="/forum" element={<Forum />} />
+              <Route path="/forum/*" element={<Forum />} />
               <Route path="/about" element={<About />} />
               <Route path="/verification-technology" element={<VerificationTechnology />} />
               <Route path="/profile" element={

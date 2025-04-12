@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,7 +15,8 @@ import ForumCategories from "./components/ForumCategories";
 import DiscussionList from "./components/DiscussionList";
 import LatestNews from "./components/LatestNews";
 import SidebarStats from "./components/SidebarStats";
-import { NewsItemProps } from "./types";
+import NewDiscussionModal from "./components/NewDiscussionModal";
+import { NewsItemProps, DiscussionProps } from "./types";
 
 export default function Forum() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,6 +25,9 @@ export default function Forum() {
   const [newsTab, setNewsTab] = useState("all");
   const [newsItems, setNewsItems] = useState<NewsItemProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [discussionItems, setDiscussionItems] = useState<DiscussionProps[]>([]);
+  const [isNewDiscussionOpen, setIsNewDiscussionOpen] = useState(false);
+  
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -55,16 +60,6 @@ export default function Forum() {
             try {
               imageUrl = await generateNewsImageWithAI(item.content, item.category);
               console.log(`Generated AI image URL: ${imageUrl}`);
-              
-              // Optionally update the database with the generated image URL
-              /* const { error: updateError } = await supabase
-                .from('news')
-                .update({ image_url: imageUrl })
-                .eq('id', item.id);
-                
-              if (updateError) {
-                console.error('Error updating news with image URL:', updateError);
-              } */
             } catch (imageError) {
               console.error(`Error generating image for news ${item.id}:`, imageError);
               // Use a default image if generation fails
@@ -106,9 +101,52 @@ export default function Forum() {
     }
 
     fetchNews();
+    
+    // For now, use mock discussions but set up a real-time subscription
+    setDiscussionItems(mockDiscussions);
+    
+    // Set up real-time updates for discussions
+    const discussionChannel = supabase
+      .channel('forum-discussions')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'discussions' 
+        }, 
+        (payload) => {
+          console.log('Real-time update received:', payload);
+          // In a real implementation, we would update discussionItems based on the payload
+          // For now, we'll just refresh the entire list to simulate real-time updates
+          if (payload.eventType === 'INSERT') {
+            // Add new discussion to the list
+            const newDiscussion = payload.new as any;
+            setDiscussionItems(prev => [
+              {
+                id: newDiscussion.id,
+                title: newDiscussion.title,
+                author: newDiscussion.author || 'Anonymous',
+                avatar: newDiscussion.author_avatar?.substring(0, 2).toUpperCase() || 'AN',
+                category: newDiscussion.category || 'discussion',
+                date: new Date(newDiscussion.created_at).toLocaleDateString(),
+                views: newDiscussion.views || 0,
+                replies: newDiscussion.replies || 0,
+                pinned: newDiscussion.pinned || false,
+                tags: newDiscussion.tags || [],
+              },
+              ...prev
+            ]);
+          }
+        })
+      .subscribe();
+      
+    // Clean up the subscription when component unmounts
+    return () => {
+      supabase.removeChannel(discussionChannel);
+    };
   }, [toast]);
   
-  const filteredDiscussions = mockDiscussions.filter((discussion) => {
+  const filteredDiscussions = discussionItems.filter((discussion) => {
     const matchesSearch = discussion.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === "all" || discussion.category === categoryFilter;
     
@@ -176,6 +214,10 @@ export default function Forum() {
       });
     }
   };
+  
+  const handleCreateDiscussion = () => {
+    setIsNewDiscussionOpen(true);
+  };
 
   if (isLoading) {
     return (
@@ -198,16 +240,7 @@ export default function Forum() {
               Discuss deepfake incidents, share knowledge, and stay updated with the latest news
             </p>
           </div>
-          <Button onClick={() => {
-            if (!user) {
-              toast({
-                title: "Authentication required",
-                description: "Please sign in to create a discussion",
-                variant: "destructive",
-              });
-              return;
-            }
-          }}>
+          <Button onClick={handleCreateDiscussion}>
             <MessageSquare className="mr-2 h-4 w-4" />
             New Discussion
           </Button>
@@ -262,6 +295,12 @@ export default function Forum() {
           </div>
         </div>
       </div>
+      
+      <NewDiscussionModal 
+        isOpen={isNewDiscussionOpen} 
+        onClose={() => setIsNewDiscussionOpen(false)}
+        categories={["technology", "reporting", "research", "guides", "stories", "legal", "tools", "discussion"]}
+      />
     </div>
   );
 }
