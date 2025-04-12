@@ -17,14 +17,16 @@ const Layout = () => {
     // Get the rendering context
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      // Draw the shield icon
-      ctx.fillStyle = '#0EA5E9';
+      // Draw the shield icon with glowing effect
+      ctx.fillStyle = '#000000';
       ctx.beginPath();
       ctx.arc(32, 32, 30, 0, 2 * Math.PI);
       ctx.fill();
       
-      // Draw a shield shape
-      ctx.fillStyle = '#FFFFFF';
+      // Draw a shield shape with glow
+      ctx.shadowColor = '#0EA5E9';
+      ctx.shadowBlur = 8;
+      ctx.fillStyle = '#0EA5E9';
       ctx.beginPath();
       ctx.moveTo(32, 12);
       ctx.lineTo(20, 18);

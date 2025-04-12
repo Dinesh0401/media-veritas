@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+
 export default function Home() {
   const [newsItems, setNewsItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -18,6 +19,7 @@ export default function Home() {
   const {
     user
   } = useAuth();
+
   useEffect(() => {
     async function fetchNews() {
       try {
@@ -45,6 +47,7 @@ export default function Home() {
     }
     fetchNews();
   }, [toast]);
+
   const handleLike = async (newsId: string, currentLikes: number) => {
     if (!user) {
       toast({
@@ -64,7 +67,6 @@ export default function Home() {
         throw error;
       }
 
-      // Update local state
       setNewsItems(newsItems.map(item => item.id === newsId ? {
         ...item,
         likes: item.likes + 1
@@ -78,8 +80,8 @@ export default function Home() {
       });
     }
   };
+
   return <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
       <section className="relative py-20 px-4 md:py-32 overflow-hidden bg-gradient-to-br from-background to-accent">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -105,8 +107,12 @@ export default function Home() {
             </div>
             <div className="hidden md:block relative h-96">
               <div className="absolute inset-0 bg-gradient-to-br from-fakenik-blue/20 to-fakenik-teal/20 rounded-xl"></div>
-              <div className="absolute inset-0 flex items-center justify-center bg-[#99d4f0]">
-                <Shield className="h-24 w-24 text-fakenik-blue" />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+                <img 
+                  src="/lovable-uploads/af23f064-609a-4dce-baca-652d175a6cec.png"
+                  alt="Digital Security Shield"
+                  className="h-64 w-64 object-contain animate-float"
+                />
               </div>
               <div className="absolute top-1/4 right-1/4 h-32 w-32 bg-fakenik-teal/10 rounded-full"></div>
               <div className="absolute bottom-1/4 left-1/4 h-40 w-40 bg-fakenik-blue/10 rounded-full"></div>
@@ -116,7 +122,6 @@ export default function Home() {
         <div className="absolute left-0 right-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent"></div>
       </section>
 
-      {/* News Carousel Section */}
       <section className="py-12 px-4 bg-background">
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
@@ -135,7 +140,6 @@ export default function Home() {
                 <p className="text-muted-foreground">Loading latest news...</p>
               </div>
             </div> : newsItems.length > 0 ? <div className="space-y-8">
-              {/* Featured News Item */}
               <div className="relative overflow-hidden rounded-xl">
                 <div className="relative h-[400px] md:h-[500px] bg-black">
                   <img src={newsItems[0]?.image_url || "https://images.unsplash.com/photo-1518770660439-4636190af475"} alt={newsItems[0]?.title} className="w-full h-full object-cover opacity-70" />
@@ -179,7 +183,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Carousel of other news */}
               <div className="mt-8">
                 <Carousel className="w-full">
                   <CarouselContent>
@@ -237,7 +240,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-16 px-4 bg-background">
         <div className="container mx-auto">
           <div className="text-center mb-12">
@@ -287,7 +289,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Community Section */}
       <section className="py-16 px-4 bg-muted/50">
         <div className="container mx-auto">
           <div className="text-center mb-12">
@@ -331,7 +332,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-16 px-4 bg-gradient-to-br from-fakenik-blue/10 to-fakenik-teal/10">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Take Action?</h2>
