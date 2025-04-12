@@ -110,7 +110,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="absolute left-0 right-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent bg-red-100"></div>
+        <div className="absolute left-0 right-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent bg-purple-100"></div>
       </section>
 
       <section className="py-12 px-4 bg-background">
