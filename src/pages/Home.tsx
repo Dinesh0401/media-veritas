@@ -9,7 +9,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-
 export default function Home() {
   const [newsItems, setNewsItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -19,7 +18,6 @@ export default function Home() {
   const {
     user
   } = useAuth();
-
   useEffect(() => {
     async function fetchNews() {
       try {
@@ -47,7 +45,6 @@ export default function Home() {
     }
     fetchNews();
   }, [toast]);
-
   const handleLike = async (newsId: string, currentLikes: number) => {
     if (!user) {
       toast({
@@ -66,7 +63,6 @@ export default function Home() {
       if (error) {
         throw error;
       }
-
       setNewsItems(newsItems.map(item => item.id === newsId ? {
         ...item,
         likes: item.likes + 1
@@ -80,9 +76,8 @@ export default function Home() {
       });
     }
   };
-
   return <div className="flex flex-col min-h-screen">
-      <section className="relative py-20 px-4 md:py-32 overflow-hidden bg-gradient-to-br from-background to-accent">
+      <section className="relative py-20 px-4 md:py-32 overflow-hidden bg-gradient-to-br from-background to-accent bg-zinc-100">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div className="flex flex-col space-y-6">
@@ -107,19 +102,15 @@ export default function Home() {
             </div>
             <div className="hidden md:block relative h-96">
               <div className="absolute inset-0 bg-gradient-to-br from-fakenik-blue/20 to-fakenik-teal/20 rounded-xl"></div>
-              <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-                <img 
-                  src="/lovable-uploads/af23f064-609a-4dce-baca-652d175a6cec.png"
-                  alt="Digital Security Shield"
-                  className="h-64 w-64 object-contain animate-float"
-                />
+              <div className="absolute inset-0 flex items-center justify-center bg-violet-100">
+                <img src="/lovable-uploads/af23f064-609a-4dce-baca-652d175a6cec.png" alt="Digital Security Shield" className="h-64 w-64 object-contain animate-float" />
               </div>
               <div className="absolute top-1/4 right-1/4 h-32 w-32 bg-fakenik-teal/10 rounded-full"></div>
               <div className="absolute bottom-1/4 left-1/4 h-40 w-40 bg-fakenik-blue/10 rounded-full"></div>
             </div>
           </div>
         </div>
-        <div className="absolute left-0 right-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent"></div>
+        <div className="absolute left-0 right-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent bg-red-100"></div>
       </section>
 
       <section className="py-12 px-4 bg-background">
