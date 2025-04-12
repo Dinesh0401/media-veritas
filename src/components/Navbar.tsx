@@ -104,9 +104,11 @@ export default function Navbar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
+                <DropdownMenuItem asChild>
+                  <Link to="/profile">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut className="mr-2 h-4 w-4" />
@@ -184,6 +186,12 @@ export default function Navbar() {
                       <p className="text-xs text-muted-foreground">{user.email}</p>
                     </div>
                   </div>
+                  <Link to="/profile" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full">
+                      <User className="mr-2 h-4 w-4" />
+                      Profile
+                    </Button>
+                  </Link>
                   <Button 
                     variant="outline" 
                     className="w-full" 

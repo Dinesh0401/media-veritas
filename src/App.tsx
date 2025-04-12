@@ -18,6 +18,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ReportDetails from "./pages/ReportDetails";
 import VerifyReport from "./pages/VerifyReport";
 import VerificationTechnology from "./pages/VerificationTechnology";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,11 @@ const App = () => (
               <Route path="/forum" element={<Forum />} />
               <Route path="/about" element={<About />} />
               <Route path="/verification-technology" element={<VerificationTechnology />} />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Route>
