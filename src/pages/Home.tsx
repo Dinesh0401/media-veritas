@@ -315,7 +315,7 @@ export default function Home() {
                   Access guides, research, and tools to help you understand and identify manipulated media in your daily life.
                 </p>
                 <Link to="/resources">
-                  <Button variant="outline" className="w-full">Explore Resources</Button>
+                  <Button variant="outline" className="w-full text-left my-[21px] mx-[2px] px-[9px] py-[14px]">Explore Resources</Button>
                 </Link>
               </CardContent>
             </Card>
