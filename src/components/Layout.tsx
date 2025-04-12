@@ -36,7 +36,7 @@ const Layout = () => {
       ctx.fill();
       
       // Create a link element for the favicon
-      const link = document.querySelector("link[rel~='icon']") || document.createElement('link');
+      const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement || document.createElement('link');
       link.setAttribute('rel', 'icon');
       link.setAttribute('type', 'image/png');
       link.href = canvas.toDataURL('image/png');
