@@ -105,8 +105,8 @@ export default function Home() {
               <div className="absolute inset-0 flex items-center justify-center bg-violet-100">
                 <img src="/lovable-uploads/af23f064-609a-4dce-baca-652d175a6cec.png" alt="Digital Security Shield" className="h-64 w-64 object-contain animate-float" />
               </div>
-              <div className="absolute top-1/4 right-1/4 h-32 w-32 bg-fakenik-teal/10 rounded-full"></div>
-              <div className="absolute bottom-1/4 left-1/4 h-40 w-40 bg-fakenik-blue/10 rounded-full"></div>
+              
+              
             </div>
           </div>
         </div>
