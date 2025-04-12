@@ -4,11 +4,12 @@ import { Search, Shield, Award, MessageSquare, Heart, Share2, MessageCircle, Che
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+
 export default function Home() {
   const [newsItems, setNewsItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -18,6 +19,7 @@ export default function Home() {
   const {
     user
   } = useAuth();
+
   useEffect(() => {
     async function fetchNews() {
       try {
@@ -45,6 +47,7 @@ export default function Home() {
     }
     fetchNews();
   }, [toast]);
+
   const handleLike = async (newsId: string, currentLikes: number) => {
     if (!user) {
       toast({
@@ -76,6 +79,7 @@ export default function Home() {
       });
     }
   };
+
   return <div className="flex flex-col min-h-screen">
       <section className="relative py-20 px-4 md:py-32 overflow-hidden bg-gradient-to-br from-background to-accent bg-zinc-100">
         <div className="container mx-auto">
@@ -88,14 +92,14 @@ export default function Home() {
                 FakeniX helps detect, report, and track manipulated content to create a safer online environment.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Link to="/report">
+                <Link to="/demo">
                   <Button size="lg" className="w-full sm:w-auto">
-                    Report Deepfake
+                    Try Detection Demo
                   </Button>
                 </Link>
-                <Link to="/about">
+                <Link to="/report">
                   <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                    Learn More
+                    Report Deepfake
                   </Button>
                 </Link>
               </div>

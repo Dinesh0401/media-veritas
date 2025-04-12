@@ -19,6 +19,7 @@ import ReportDetails from "./pages/ReportDetails";
 import VerifyReport from "./pages/VerifyReport";
 import VerificationTechnology from "./pages/VerificationTechnology";
 import Profile from "./pages/Profile";
+import DetectionDemo from "./pages/DetectionDemo"; // Import the new page
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
                   <Profile />
                 </ProtectedRoute>
               } />
+              <Route path="/demo" element={<DetectionDemo />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Route>

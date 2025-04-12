@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -107,8 +106,12 @@ export default {
           '100%': { opacity: '1' }
         },
         bounce: {
-          '0%, 100%': { transform: 'translateY(0)' },
+          '0%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-5px)' }
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' }
         }
 			},
 			animation: {
@@ -116,7 +119,8 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
         'shimmer': 'shimmer 2s infinite linear',
         'fadeIn': 'fadeIn 0.5s ease-in',
-        'bounce': 'bounce 1s ease-in-out infinite'
+        'bounce': 'bounce 1s ease-in-out infinite',
+        'float': 'float 3s ease-in-out infinite'
 			},
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
