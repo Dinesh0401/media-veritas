@@ -1,12 +1,13 @@
 
 import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { Shield, Eye, EyeOff, Loader } from "lucide-react";
+import { Shield, Eye, EyeOff, Loader, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -14,10 +15,20 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { signUp, isLoading, user } = useAuth();
+  const [socialAuthError, setSocialAuthError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await signUp(email, password, name);
+  };
+
+  const handleSocialAuth = () => {
+    setSocialAuthError("Social authentication is currently not configured. Please use email registration instead.");
+  };
+
+  // Clear error on input focus
+  const clearError = () => {
+    if (socialAuthError) setSocialAuthError(null);
   };
 
   // Redirect if already logged in
@@ -36,7 +47,17 @@ export default function Register() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {socialAuthError && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Authentication Error</AlertTitle>
+            <AlertDescription>
+              {socialAuthError}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4" onClick={clearError}>
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
             <Input
@@ -134,13 +155,17 @@ export default function Register() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={handleSocialAuth} disabled={isLoading}>
             Google
           </Button>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={handleSocialAuth} disabled={isLoading}>
             GitHub
           </Button>
         </div>
+        
+        <p className="text-xs text-center text-muted-foreground mt-2">
+          Note: Social login requires additional configuration in the Supabase dashboard.
+        </p>
       </div>
     </div>
   );
