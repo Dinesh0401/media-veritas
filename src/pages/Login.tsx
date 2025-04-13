@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,14 +16,38 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn, isLoading, user } = useAuth();
   const [socialAuthError, setSocialAuthError] = useState<string | null>(null);
+  const [isSocialLoading, setIsSocialLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await signIn(email, password);
   };
 
-  const handleSocialAuth = () => {
-    setSocialAuthError("Social authentication is currently not configured. Please use email login instead.");
+  const handleSocialAuth = async (provider: 'google' | 'github') => {
+    try {
+      setIsSocialLoading(true);
+      setSocialAuthError(null);
+      
+      // Using Supabase Auth directly for social providers
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
+        }
+      });
+      
+      if (error) {
+        setSocialAuthError(`Error signing in with ${provider}: ${error.message}`);
+      }
+    } catch (error: any) {
+      setSocialAuthError(`An unexpected error occurred: ${error.message}`);
+    } finally {
+      setIsSocialLoading(false);
+    }
   };
 
   // Clear error on input focus
@@ -61,27 +85,31 @@ export default function Login() {
           <Button 
             variant="outline" 
             className="w-full bg-[#f4f0ff] hover:bg-[#e8e1ff] border-[#e8e1ff]" 
-            onClick={handleSocialAuth}
-            disabled={isLoading}
+            onClick={() => handleSocialAuth('google')}
+            disabled={isSocialLoading || isLoading}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-              <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-              <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-              <path fill="none" d="M1 1h22v22H1z" />
-            </svg>
+            {isSocialLoading ? (
+              <Loader className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 24 24">
+                <path fillRule="evenodd" clipRule="evenodd" d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C14.7607 19 17.1441 17.3801 18.2968 15H12V12H21.8906C21.9633 12.3235 22 12.6581 22 13C22 18.5228 17.5228 23 12 23C6.47715 23 2 18.5228 2 13C2 7.47715 6.47715 3 12 3C14.9673 3 17.6122 4.30405 19.4149 6.34315L17.2949 8.46315C16.0729 6.97787 14.135 6 12 6C8.69 6 6 8.69 6 12C6 15.31 8.69 18 12 18C14.7165 18 17.0357 16.1649 17.7079 13.6571H12V10.6571H20.8312C20.9425 11.0877 21 11.5368 21 12C21 17.5229 16.9706 22 12 22C7.02944 22 3 17.5229 3 12C3 6.47715 7.02944 2 12 2C15.0554 2 17.7903 3.40202 19.6219 5.58809L17.5045 7.70548C16.1732 5.98375 14.1986 5 12 5Z" fill="currentColor" />
+              </svg>
+            )}
             Google
           </Button>
           <Button 
             variant="outline" 
             className="w-full hover:bg-accent" 
-            onClick={handleSocialAuth}
-            disabled={isLoading}
+            onClick={() => handleSocialAuth('github')}
+            disabled={isSocialLoading || isLoading}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
-            </svg>
+            {isSocialLoading ? (
+              <Loader className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+              </svg>
+            )}
             GitHub
           </Button>
         </div>
@@ -174,7 +202,7 @@ export default function Login() {
         </div>
         
         <p className="text-xs text-center text-muted-foreground mt-2">
-          Note: Social login requires additional configuration in the Supabase dashboard.
+          By using social authentication, you agree to our Terms of Service and Privacy Policy.
         </p>
       </div>
     </div>
