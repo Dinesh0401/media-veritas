@@ -21,6 +21,7 @@ import VerificationTechnology from "./pages/VerificationTechnology";
 import Profile from "./pages/Profile";
 import DetectionDemo from "./pages/DetectionDemo";
 import Roadmap from "./pages/Roadmap";
+import AuthCallback from "./pages/AuthCallback";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/report" element={
                 <ProtectedRoute>
                   <Report />

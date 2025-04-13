@@ -28,11 +28,16 @@ export default function Login() {
       setIsSocialLoading(true);
       setSocialAuthError(null);
       
-      // Using Supabase Auth directly for social providers
+      // Get the current URL (without any query parameters or hash)
+      const baseUrl = window.location.origin;
+      console.log(`Attempting to sign in with ${provider}...`);
+      console.log(`Redirect URL: ${baseUrl}/auth/callback`);
+      
+      // Using Supabase Auth directly for social providers with correct redirectTo
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${baseUrl}/auth/callback`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
