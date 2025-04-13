@@ -75,6 +75,12 @@ export default function Navbar() {
             Forum
           </Link>
           <Link 
+            to="/roadmap" 
+            className={`text-sm font-medium transition-colors hover:text-foreground/80 ${isActive('/roadmap') ? 'text-foreground' : 'text-foreground/60'}`}
+          >
+            Roadmap
+          </Link>
+          <Link 
             to="/about" 
             className={`text-sm font-medium transition-colors hover:text-foreground/80 ${isActive('/about') ? 'text-foreground' : 'text-foreground/60'}`}
           >
@@ -165,6 +171,13 @@ export default function Navbar() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Forum
+            </Link>
+            <Link 
+              to="/roadmap" 
+              className={`text-sm font-medium transition-colors hover:text-foreground/80 ${isActive('/roadmap') ? 'text-foreground' : 'text-foreground/60'}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Roadmap
             </Link>
             <Link 
               to="/about" 

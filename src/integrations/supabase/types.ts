@@ -46,6 +46,7 @@ export type Database = {
       }
       discussions: {
         Row: {
+          author: string | null
           category: string
           content: string
           created_at: string
@@ -58,6 +59,7 @@ export type Database = {
           views: number | null
         }
         Insert: {
+          author?: string | null
           category: string
           content: string
           created_at?: string
@@ -70,6 +72,7 @@ export type Database = {
           views?: number | null
         }
         Update: {
+          author?: string | null
           category?: string
           content?: string
           created_at?: string

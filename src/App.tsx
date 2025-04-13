@@ -20,6 +20,7 @@ import VerifyReport from "./pages/VerifyReport";
 import VerificationTechnology from "./pages/VerificationTechnology";
 import Profile from "./pages/Profile";
 import DetectionDemo from "./pages/DetectionDemo";
+import Roadmap from "./pages/Roadmap";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
                 </ProtectedRoute>
               } />
               <Route path="/demo" element={<DetectionDemo />} />
+              <Route path="/roadmap" element={<Roadmap />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Route>
