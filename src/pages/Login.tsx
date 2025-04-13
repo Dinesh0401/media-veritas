@@ -41,10 +41,17 @@ export default function Login() {
       });
       
       if (error) {
-        setSocialAuthError(`Error signing in with ${provider}: ${error.message}`);
+        console.error(`OAuth error with ${provider}:`, error);
+        // Provide more detailed error message
+        if (error.message.includes("network")) {
+          setSocialAuthError(`Connection error: Unable to connect to ${provider}. Please check your internet connection and try again.`);
+        } else {
+          setSocialAuthError(`Error signing in with ${provider}: ${error.message}`);
+        }
       }
     } catch (error: any) {
-      setSocialAuthError(`An unexpected error occurred: ${error.message}`);
+      console.error('Unexpected OAuth error:', error);
+      setSocialAuthError(`An unexpected error occurred: ${error.message || 'Connection refused'}`);
     } finally {
       setIsSocialLoading(false);
     }
@@ -77,6 +84,16 @@ export default function Login() {
             <AlertTitle>Authentication Error</AlertTitle>
             <AlertDescription>
               {socialAuthError}
+              {socialAuthError.includes("Connection error") && (
+                <div className="mt-2 text-xs">
+                  <p>Please ensure:</p>
+                  <ul className="list-disc pl-4 mt-1">
+                    <li>You have an active internet connection</li>
+                    <li>The OAuth provider is correctly configured in Supabase</li>
+                    <li>The callback URL is properly set in the provider's console</li>
+                  </ul>
+                </div>
+              )}
             </AlertDescription>
           </Alert>
         )}
