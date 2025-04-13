@@ -4,8 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { 
-  Image, Video, Award, FileText, Gallery, Languages, Accessibility, 
-  Smartphone, Link, BarChart3, Graduationhat, ArrowRight 
+  Image, Video, Award, FileText, ImageIcon, Languages, Accessibility, 
+  Smartphone, Link, BarChart3, GraduationCap, ArrowRight 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CustomProgress } from "@/components/ui/custom-progress";
@@ -94,7 +94,7 @@ export default function Roadmap() {
       id: 4,
       title: "Immersive Storytelling & Case Studies",
       description: "Multimedia gallery with interactive maps and timelines showcasing notable deepfake cases and their impacts.",
-      icon: <Gallery className="h-8 w-8 text-purple-500" />,
+      icon: <ImageIcon className="h-8 w-8 text-purple-500" />,
       status: "planned",
       progressPercent: 10,
       category: ["community"],
@@ -196,7 +196,7 @@ export default function Roadmap() {
       id: 10,
       title: "Community & Education Hub",
       description: "Built-in Learning Management System with interactive quizzes, certificates, legal guidelines, and tutorials.",
-      icon: <Graduationhat className="h-8 w-8 text-emerald-500" />,
+      icon: <GraduationCap className="h-8 w-8 text-emerald-500" />,
       status: "planned",
       progressPercent: 10,
       category: ["community", "enterprise"],
